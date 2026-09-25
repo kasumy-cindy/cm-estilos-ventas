@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Iniciar sesión | C&M Estilos</title>
+
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body data-page="login">
+
+    <main class="login-page">
+
+        <section class="login-card">
+
+            <div class="brand">
+                <div class="brand-mark">C&M</div>
+
+                <div>
+                    <strong>C&M Estilos</strong>
+                    <small>Gestión comercial</small>
+                </div>
+            </div>
+
+            <h1>Bienvenido</h1>
+
+            <p>
+                Ingresa para administrar productos,
+                inventario y ventas.
+            </p>
+
+            <form id="loginForm" onsubmit="return false;">
+
+                <div class="field">
+                    <label for="username">Usuario</label>
+
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        autocomplete="username"
+                        placeholder="admin">
+                </div>
+
+                <div class="field">
+                    <label for="password">Contraseña</label>
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        autocomplete="current-password"
+                        placeholder="admin123">
+                </div>
+
+                <button
+                    id="loginButton"
+                    class="btn btn-primary"
+                    type="submit">
+                    Iniciar sesión
+                </button>
+
+            </form>
+
+            <div
+                id="loginError"
+                class="alert alert-danger hidden">
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        const loginForm =
+            document.getElementById('loginForm');
+
+        const loginButton =
+            document.getElementById('loginButton');
+
+        const loginError =
+            document.getElementById('loginError');
+
+        loginForm.addEventListener(
+            'submit',
+            async function (event) {
+
+                event.preventDefault();
+
+                loginButton.disabled = true;
+                loginButton.textContent = 'Ingresando...';
+
+                loginError.textContent = '';
+                loginError.classList.add('hidden');
+
+                const username =
+                    document.getElementById('username')
+                    .value
+                    .trim();
+
+                const password =
+                    document.getElementById('password')
+                    .value;
+
+                try {
+                    const response = await fetch(
+                        '/api/auth/login',
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+                            body: JSON.stringify({
+                                username: username,
+                                password: password
+                            })
+                        }
+                    );
+
+                    const texto =
+                        await response.text();
+
+                    let data = {};
+
+                    try {
+                        data = texto
+                            ? JSON.parse(texto)
+                            : {};
+                    } catch (error) {
+                        data = {};
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.message ||
+                            'Usuario o contraseña incorrectos'
+                        );
+                    }
+
+                    localStorage.setItem(
+                        'cm_token',
+                        data.token
+                    );
+
+                    localStorage.setItem(
+                        'cm_user',
+                        JSON.stringify(data)
+                    );
+
+                    window.location.href =
+                        '/dashboard.html';
+
+                } catch (error) {
+
+                    loginError.textContent =
+                        error.message;
+
+                    loginError.classList.remove(
+                        'hidden'
+                    );
+
+                    loginButton.disabled = false;
+                    loginButton.textContent =
+                        'Iniciar sesión';
+                }
+            }
+        );
+    </script>
+
+</body>
+
+</html>
