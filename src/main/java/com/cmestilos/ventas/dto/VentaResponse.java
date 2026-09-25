@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VentaResponse {
+
     private Integer idVenta;
     private Integer clienteId;
     private String cliente;
@@ -18,16 +19,75 @@ public class VentaResponse {
     private BigDecimal subtotal;
     private BigDecimal impuesto;
     private BigDecimal montoTotal;
+
+    private String estadoPedido;
+    private String estadoPago;
+    private String modalidadEntrega;
+    private String direccionEntrega;
+    private String telefonoEntrega;
+
     private List<DetalleVentaResponse> detalles = new ArrayList<>();
 
     public VentaResponse() {
     }
 
-    public VentaResponse(Integer idVenta, Integer clienteId, String cliente, Integer usuarioId,
-                         String usuario, Integer metodoPagoId, String metodoPago,
-                         LocalDateTime fechaHora, String tipoVenta,
-                         BigDecimal subtotal, BigDecimal impuesto, BigDecimal montoTotal,
-                         List<DetalleVentaResponse> detalles) {
+    public VentaResponse(
+            Integer idVenta,
+            Integer clienteId,
+            String cliente,
+            Integer usuarioId,
+            String usuario,
+            Integer metodoPagoId,
+            String metodoPago,
+            LocalDateTime fechaHora,
+            String tipoVenta,
+            BigDecimal subtotal,
+            BigDecimal impuesto,
+            BigDecimal montoTotal,
+            List<DetalleVentaResponse> detalles) {
+
+        this(
+                idVenta,
+                clienteId,
+                cliente,
+                usuarioId,
+                usuario,
+                metodoPagoId,
+                metodoPago,
+                fechaHora,
+                tipoVenta,
+                subtotal,
+                impuesto,
+                montoTotal,
+                "ENTREGADO",
+                "PAGADO",
+                "TIENDA",
+                null,
+                null,
+                detalles
+        );
+    }
+
+    public VentaResponse(
+            Integer idVenta,
+            Integer clienteId,
+            String cliente,
+            Integer usuarioId,
+            String usuario,
+            Integer metodoPagoId,
+            String metodoPago,
+            LocalDateTime fechaHora,
+            String tipoVenta,
+            BigDecimal subtotal,
+            BigDecimal impuesto,
+            BigDecimal montoTotal,
+            String estadoPedido,
+            String estadoPago,
+            String modalidadEntrega,
+            String direccionEntrega,
+            String telefonoEntrega,
+            List<DetalleVentaResponse> detalles) {
+
         this.idVenta = idVenta;
         this.clienteId = clienteId;
         this.cliente = cliente;
@@ -40,33 +100,155 @@ public class VentaResponse {
         this.subtotal = subtotal;
         this.impuesto = impuesto;
         this.montoTotal = montoTotal;
-        this.detalles = detalles;
+        this.estadoPedido = estadoPedido;
+        this.estadoPago = estadoPago;
+        this.modalidadEntrega = modalidadEntrega;
+        this.direccionEntrega = direccionEntrega;
+        this.telefonoEntrega = telefonoEntrega;
+        this.detalles = detalles != null ? detalles : new ArrayList<>();
     }
 
-    public Integer getIdVenta() { return idVenta; }
-    public void setIdVenta(Integer idVenta) { this.idVenta = idVenta; }
-    public Integer getClienteId() { return clienteId; }
-    public void setClienteId(Integer clienteId) { this.clienteId = clienteId; }
-    public String getCliente() { return cliente; }
-    public void setCliente(String cliente) { this.cliente = cliente; }
-    public Integer getUsuarioId() { return usuarioId; }
-    public void setUsuarioId(Integer usuarioId) { this.usuarioId = usuarioId; }
-    public String getUsuario() { return usuario; }
-    public void setUsuario(String usuario) { this.usuario = usuario; }
-    public Integer getMetodoPagoId() { return metodoPagoId; }
-    public void setMetodoPagoId(Integer metodoPagoId) { this.metodoPagoId = metodoPagoId; }
-    public String getMetodoPago() { return metodoPago; }
-    public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
-    public LocalDateTime getFechaHora() { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
-    public String getTipoVenta() { return tipoVenta; }
-    public void setTipoVenta(String tipoVenta) { this.tipoVenta = tipoVenta; }
-    public BigDecimal getSubtotal() { return subtotal; }
-    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
-    public BigDecimal getImpuesto() { return impuesto; }
-    public void setImpuesto(BigDecimal impuesto) { this.impuesto = impuesto; }
-    public BigDecimal getMontoTotal() { return montoTotal; }
-    public void setMontoTotal(BigDecimal montoTotal) { this.montoTotal = montoTotal; }
-    public List<DetalleVentaResponse> getDetalles() { return detalles; }
-    public void setDetalles(List<DetalleVentaResponse> detalles) { this.detalles = detalles; }
+    public Integer getIdVenta() {
+        return idVenta;
+    }
+
+    public void setIdVenta(Integer idVenta) {
+        this.idVenta = idVenta;
+    }
+
+    public Integer getClienteId() {
+        return clienteId;
+    }
+
+    public void setClienteId(Integer clienteId) {
+        this.clienteId = clienteId;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(String cliente) {
+        this.cliente = cliente;
+    }
+
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Integer usuarioId) {
+        this.usuarioId = usuarioId;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public Integer getMetodoPagoId() {
+        return metodoPagoId;
+    }
+
+    public void setMetodoPagoId(Integer metodoPagoId) {
+        this.metodoPagoId = metodoPagoId;
+    }
+
+    public String getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago;
+    }
+
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
+    }
+
+    public String getTipoVenta() {
+        return tipoVenta;
+    }
+
+    public void setTipoVenta(String tipoVenta) {
+        this.tipoVenta = tipoVenta;
+    }
+
+    public BigDecimal getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(BigDecimal subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public BigDecimal getImpuesto() {
+        return impuesto;
+    }
+
+    public void setImpuesto(BigDecimal impuesto) {
+        this.impuesto = impuesto;
+    }
+
+    public BigDecimal getMontoTotal() {
+        return montoTotal;
+    }
+
+    public void setMontoTotal(BigDecimal montoTotal) {
+        this.montoTotal = montoTotal;
+    }
+
+    public String getEstadoPedido() {
+        return estadoPedido;
+    }
+
+    public void setEstadoPedido(String estadoPedido) {
+        this.estadoPedido = estadoPedido;
+    }
+
+    public String getEstadoPago() {
+        return estadoPago;
+    }
+
+    public void setEstadoPago(String estadoPago) {
+        this.estadoPago = estadoPago;
+    }
+
+    public String getModalidadEntrega() {
+        return modalidadEntrega;
+    }
+
+    public void setModalidadEntrega(String modalidadEntrega) {
+        this.modalidadEntrega = modalidadEntrega;
+    }
+
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public void setDireccionEntrega(String direccionEntrega) {
+        this.direccionEntrega = direccionEntrega;
+    }
+
+    public String getTelefonoEntrega() {
+        return telefonoEntrega;
+    }
+
+    public void setTelefonoEntrega(String telefonoEntrega) {
+        this.telefonoEntrega = telefonoEntrega;
+    }
+
+    public List<DetalleVentaResponse> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleVentaResponse> detalles) {
+        this.detalles = detalles;
+    }
 }

@@ -1050,3 +1050,463 @@ document.addEventListener(
   'DOMContentLoaded',
   App.start
 );
+function obtenerTokenOnline() {
+    return localStorage.getItem('cm_token');
+}
+
+function escaparHtmlOnline(valor) {
+    if (valor === null || valor === undefined) {
+        return '';
+    }
+
+    return String(valor)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function mostrarMensajeOnline(mensaje, tipo) {
+    const elemento = document.getElementById('onlineOrdersMessage');
+
+    if (!elemento) {
+        return;
+    }
+
+    elemento.textContent = mensaje;
+    elemento.className = 'alert alert-' + tipo;
+}
+
+function formatoDineroOnline(valor) {
+    const numero = Number(valor || 0);
+
+    return 'S/ ' + numero.toFixed(2);
+}
+
+function formatoFechaOnline(fecha) {
+    if (!fecha) {
+        return '-';
+    }
+
+    const fechaConvertida = new Date(fecha);
+
+    if (Number.isNaN(fechaConvertida.getTime())) {
+        return fecha;
+    }
+
+    return fechaConvertida.toLocaleString('es-PE');
+}
+
+function colorEstadoOnline(estado) {
+    if (!estado) {
+        return '';
+    }
+
+    return estado.toLowerCase();
+}
+
+async function cargarPedidosOnline() {
+
+    const cuerpo =
+        document.getElementById('onlineReportBody');
+
+    const filtro =
+        document.getElementById('onlineStatusFilter');
+
+    if (!cuerpo) {
+        return;
+    }
+
+    cuerpo.innerHTML = `
+        <tr>
+            <td colspan="8" class="empty">
+                Cargando pedidos online...
+            </td>
+        </tr>
+    `;
+
+    try {
+        const estado = filtro ? filtro.value : '';
+
+        let url =
+            '/api/reportes/ventas-online';
+
+        if (estado) {
+            url += '?estado='
+                + encodeURIComponent(estado);
+        }
+
+        const respuesta = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization':
+                    'Bearer ' + obtenerTokenOnline(),
+                'Accept': 'application/json'
+            }
+        });
+
+        if (respuesta.status === 401
+                || respuesta.status === 403) {
+
+            throw new Error(
+                'No tienes permiso para consultar los pedidos online'
+            );
+        }
+
+        if (!respuesta.ok) {
+            throw new Error(
+                'No se pudieron cargar los pedidos online'
+            );
+        }
+
+        const pedidos = await respuesta.json();
+
+        if (!pedidos || pedidos.length === 0) {
+
+            cuerpo.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty">
+                        No hay pedidos online para este filtro.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        cuerpo.innerHTML = pedidos.map(pedido => {
+
+            const estadoPedido =
+                pedido.estadoPedido || 'PENDIENTE';
+
+            const estadoPago =
+                pedido.estadoPago || 'PENDIENTE';
+
+            return `
+                <tr>
+                    <td>
+                        #${escaparHtmlOnline(pedido.idVenta)}
+                    </td>
+
+                    <td>
+                        ${escaparHtmlOnline(pedido.cliente)}
+                    </td>
+
+                    <td>
+                        ${escaparHtmlOnline(
+                            formatoFechaOnline(pedido.fechaHora)
+                        )}
+                    </td>
+
+                    <td>
+                        ${escaparHtmlOnline(
+                            formatoDineroOnline(pedido.montoTotal)
+                        )}
+                    </td>
+
+                    <td>
+                        ${escaparHtmlOnline(
+                            pedido.metodoPago || '-'
+                        )}
+                    </td>
+
+                    <td>
+                        <span class="badge">
+                            ${escaparHtmlOnline(estadoPago)}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge estado-${escaparHtmlOnline(
+                            colorEstadoOnline(estadoPedido)
+                        )}">
+                            ${escaparHtmlOnline(estadoPedido)}
+                        </span>
+                    </td>
+
+                    <td>
+                        <select
+                            class="online-state-select"
+                            data-id="${escaparHtmlOnline(
+                                pedido.idVenta
+                            )}">
+
+                            <option value="PENDIENTE"
+                                ${estadoPedido === 'PENDIENTE'
+                                    ? 'selected'
+                                    : ''}>
+                                Pendiente
+                            </option>
+
+                            <option value="CONFIRMADO"
+                                ${estadoPedido === 'CONFIRMADO'
+                                    ? 'selected'
+                                    : ''}>
+                                Confirmado
+                            </option>
+
+                            <option value="PREPARANDO"
+                                ${estadoPedido === 'PREPARANDO'
+                                    ? 'selected'
+                                    : ''}>
+                                Preparando
+                            </option>
+
+                            <option value="ENVIADO"
+                                ${estadoPedido === 'ENVIADO'
+                                    ? 'selected'
+                                    : ''}>
+                                Enviado
+                            </option>
+
+                            <option value="ENTREGADO"
+                                ${estadoPedido === 'ENTREGADO'
+                                    ? 'selected'
+                                    : ''}>
+                                Entregado
+                            </option>
+
+                            <option value="CANCELADO"
+                                ${estadoPedido === 'CANCELADO'
+                                    ? 'selected'
+                                    : ''}>
+                                Cancelado
+                            </option>
+
+                        </select>
+
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-small"
+                            data-action="update-online-state"
+                            data-id="${escaparHtmlOnline(
+                                pedido.idVenta
+                            )}">
+                            Guardar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        configurarEventosPedidosOnline();
+
+    } catch (error) {
+
+        cuerpo.innerHTML = `
+            <tr>
+                <td colspan="8" class="empty">
+                    ${escaparHtmlOnline(error.message)}
+                </td>
+            </tr>
+        `;
+
+        mostrarMensajeOnline(
+            error.message,
+            'danger'
+        );
+    }
+}
+
+function configurarEventosPedidosOnline() {
+
+    const filtro =
+        document.getElementById('onlineStatusFilter');
+
+    if (filtro && !filtro.dataset.configurado) {
+
+        filtro.addEventListener(
+            'change',
+            cargarPedidosOnline
+        );
+
+        filtro.dataset.configurado = 'true';
+    }
+
+    document
+        .querySelectorAll(
+            '[data-action="update-online-state"]'
+        )
+        .forEach(boton => {
+
+            if (boton.dataset.configurado) {
+                return;
+            }
+
+            boton.addEventListener(
+                'click',
+                actualizarEstadoPedidoOnline
+            );
+
+            boton.dataset.configurado = 'true';
+        });
+}
+
+async function actualizarEstadoPedidoOnline(evento) {
+
+    const boton = evento.currentTarget;
+
+    const idVenta =
+        boton.dataset.id;
+
+    const selector =
+        document.querySelector(
+            `.online-state-select[data-id="${idVenta}"]`
+        );
+
+    if (!selector) {
+        return;
+    }
+
+    const estado =
+        selector.value;
+
+    boton.disabled = true;
+    boton.textContent = 'Guardando...';
+
+    try {
+
+        const respuesta = await fetch(
+            `/api/ventas/${idVenta}/estado?estado=${encodeURIComponent(estado)}`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization':
+                        'Bearer ' + obtenerTokenOnline(),
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (respuesta.status === 401
+                || respuesta.status === 403) {
+
+            throw new Error(
+                'No tienes permiso para actualizar el pedido'
+            );
+        }
+
+        if (!respuesta.ok) {
+            throw new Error(
+                'No se pudo actualizar el estado del pedido'
+            );
+        }
+
+        await respuesta.json();
+
+        mostrarMensajeOnline(
+            'El estado del pedido se actualizó correctamente.',
+            'success'
+        );
+
+        await cargarPedidosOnline();
+
+    } catch (error) {
+
+        mostrarMensajeOnline(
+            error.message,
+            'danger'
+        );
+
+        boton.disabled = false;
+        boton.textContent = 'Guardar';
+    }
+}
+
+function iniciarPedidosOnline() {
+
+    if (!document.body) {
+        return;
+    }
+
+    if (
+        document.body.dataset.page
+        !== 'pedidos-online'
+    ) {
+        return;
+    }
+
+    cargarPedidosOnline();
+}
+
+document.addEventListener(
+    'DOMContentLoaded',
+    iniciarPedidosOnline
+);
+async function cargarProductosEnInventario() {
+    const select = document.getElementById('variantProduct');
+
+    if (!select) {
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('cm_token');
+
+        const respuesta = await fetch(
+            '/api/productos?todos=true',
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            }
+        );
+
+        if (!respuesta.ok) {
+            throw new Error(
+                'No se pudieron cargar los productos'
+            );
+        }
+
+        const resultado = await respuesta.json();
+
+        const productos = Array.isArray(resultado)
+            ? resultado
+            : resultado.content || [];
+
+        select.innerHTML =
+            '<option value="">Seleccione un producto</option>';
+
+        productos.forEach(producto => {
+
+            const id = producto.idProducto;
+            const nombre = producto.nombre || 'Producto';
+            const sku = producto.sku || '';
+
+            const option =
+                document.createElement('option');
+
+            option.value = id;
+            option.textContent =
+                sku + ' - ' + nombre;
+
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+
+        select.innerHTML =
+            '<option value="">Error al cargar productos</option>';
+
+        console.error(
+            'Error cargando productos:',
+            error
+        );
+    }
+}
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        if (
+            document.body.dataset.page
+            === 'inventario'
+        ) {
+            cargarProductosEnInventario();
+        }
+    }
+);

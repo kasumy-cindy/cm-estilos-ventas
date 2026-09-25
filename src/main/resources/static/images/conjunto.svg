@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#f6f1ff"/>
+<path d="M185 95l65-35 65 35 60 55-40 58-35-28v75H200v-75l-35 28-40-58z" fill="#8d73c7" stroke="#3f315f" stroke-width="8"/>
+<path d="M200 225h100l25 135H175z" fill="#6c55a7" stroke="#3f315f" stroke-width="8"/>
+<path d="M250 60v52" stroke="#f0eaff" stroke-width="6"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#3f315f">Conjunto</text>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#fff5ef"/>
+<path d="M115 160h270l25 220H90z" fill="#a96847" stroke="#4c2d20" stroke-width="8"/>
+<path d="M170 160v-35q0-70 80-70t80 70v35" fill="none" stroke="#4c2d20" stroke-width="16"/>
+<path d="M150 230h200M150 275h200" stroke="#d9a27d" stroke-width="7"/>
+<circle cx="250" cy="220" r="9" fill="#f6d1ae"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#4c2d20">Cartera</text>
+</svg>

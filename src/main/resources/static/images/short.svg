@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#f4fbf8"/>
+<path d="M150 100h200l-25 105-35 55 65 130H245l-35-105-35 105H80l65-130-35-55z" fill="#54b89c" stroke="#21483e" stroke-width="8"/>
+<path d="M150 100h200v45H150z" fill="#398f78" stroke="#21483e" stroke-width="8"/>
+<path d="M250 145v110" stroke="#d9fff3" stroke-width="6"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#21483e">Short</text>
+</svg>

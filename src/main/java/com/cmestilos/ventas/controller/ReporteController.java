@@ -49,10 +49,9 @@ public class ReporteController {
             @RequestParam(required = false) LocalDate desde,
             @RequestParam(required = false) LocalDate hasta) {
 
-        ReporteResumenResponse resultado =
-                reporteService.resumen(desde, hasta);
-
-        return ResponseEntity.ok(resultado);
+        return ResponseEntity.ok(
+                reporteService.resumen(desde, hasta)
+        );
     }
 
     @GetMapping("/ventas")
@@ -63,6 +62,30 @@ public class ReporteController {
         List<VentaResponse> resultado = reporteService
                 .ventas(desde, hasta)
                 .stream()
+                .map(this::convertirVenta)
+                .toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping("/ventas-online")
+    public ResponseEntity<List<VentaResponse>> ventasOnline(
+            @RequestParam(required = false) LocalDate desde,
+            @RequestParam(required = false) LocalDate hasta,
+            @RequestParam(required = false) String estado) {
+
+        String estadoFiltro = estado == null || estado.isBlank()
+                ? null
+                : estado.trim().toUpperCase();
+
+        List<VentaResponse> resultado = reporteService
+                .ventas(desde, hasta)
+                .stream()
+                .filter(this::esVentaOnline)
+                .filter(venta -> estadoFiltro == null
+                        || (venta.getEstadoPedido() != null
+                        && venta.getEstadoPedido()
+                        .equalsIgnoreCase(estadoFiltro)))
                 .map(this::convertirVenta)
                 .toList();
 
@@ -104,16 +127,20 @@ public class ReporteController {
                 )
         );
 
-        String textoFechas =
-                "Desde: "
-                + (desde == null ? "Todas" : desde)
-                + "    Hasta: "
-                + (hasta == null ? "Todas" : hasta);
+        documento.add(
+                new Paragraph(
+                        "Desde: "
+                        + (desde == null ? "Todas" : desde)
+                        + "    Hasta: "
+                        + (hasta == null ? "Todas" : hasta)
+                )
+        );
 
-        documento.add(new Paragraph(textoFechas));
         documento.add(new Paragraph(" "));
 
-        com.lowagie.text.pdf.PdfPTable tabla = new com.lowagie.text.pdf.PdfPTable(7);
+        com.lowagie.text.pdf.PdfPTable tabla =
+                new com.lowagie.text.pdf.PdfPTable(10);
+
         tabla.setWidthPercentage(100);
 
         tabla.addCell("ID");
@@ -121,6 +148,9 @@ public class ReporteController {
         tabla.addCell("Cliente");
         tabla.addCell("Tipo");
         tabla.addCell("Pago");
+        tabla.addCell("Estado pedido");
+        tabla.addCell("Estado pago");
+        tabla.addCell("Entrega");
         tabla.addCell("Subtotal");
         tabla.addCell("Total");
 
@@ -165,6 +195,24 @@ public class ReporteController {
             );
 
             tabla.addCell(
+                    venta.getEstadoPedido() == null
+                            ? "-"
+                            : venta.getEstadoPedido()
+            );
+
+            tabla.addCell(
+                    venta.getEstadoPago() == null
+                            ? "-"
+                            : venta.getEstadoPago()
+            );
+
+            tabla.addCell(
+                    venta.getModalidadEntrega() == null
+                            ? "-"
+                            : venta.getModalidadEntrega()
+            );
+
+            tabla.addCell(
                     "S/ "
                     + (venta.getSubtotal() == null
                             ? BigDecimal.ZERO
@@ -189,6 +237,14 @@ public class ReporteController {
                 )
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(salida.toByteArray());
+    }
+
+    private boolean esVentaOnline(Venta venta) {
+
+        return venta.getTipoVenta() != null
+                && "Online".equalsIgnoreCase(
+                        venta.getTipoVenta().getValor()
+                );
     }
 
     private VentaResponse convertirVenta(Venta venta) {
@@ -239,6 +295,11 @@ public class ReporteController {
                 venta.getSubtotal(),
                 venta.getImpuesto(),
                 venta.getMontoTotal(),
+                venta.getEstadoPedido(),
+                venta.getEstadoPago(),
+                venta.getModalidadEntrega(),
+                venta.getDireccionEntrega(),
+                venta.getTelefonoEntrega(),
                 detalles
         );
     }
@@ -256,7 +317,7 @@ public class ReporteController {
                         BigDecimal.valueOf(
                                 detalle.getCantidad()
                         )
-                );
+                ).setScale(2);
 
         return new DetalleVentaResponse(
                 detalle.getIdDetalle(),
@@ -267,12 +328,14 @@ public class ReporteController {
                                 .getIdVariante(),
 
                 detalle.getVariante() == null
+                        || detalle.getVariante().getProducto() == null
                         ? null
                         : detalle.getVariante()
                                 .getProducto()
                                 .getSku(),
 
                 detalle.getVariante() == null
+                        || detalle.getVariante().getProducto() == null
                         ? null
                         : detalle.getVariante()
                                 .getProducto()

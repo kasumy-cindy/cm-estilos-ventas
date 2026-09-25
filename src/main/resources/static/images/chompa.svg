@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#fff5f8"/>
+<path d="M180 100l70-38 70 38 75 65-45 65-35-32v165H185V198l-35 32-45-65z" fill="#bd6b91" stroke="#552d43" stroke-width="8"/>
+<path d="M180 100h140l-20 45H200z" fill="#a9577d" stroke="#552d43" stroke-width="8"/>
+<path d="M130 285h240M135 320h230" stroke="#f7c7dc" stroke-width="7" opacity=".8"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#552d43">Chompa</text>
+</svg>

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pedidos online | C&M Estilos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body data-page="pedidos-online">
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-mark">C&M</div>
+
+            <div>
+                <strong>C&M Estilos</strong>
+                <small>Panel de gestión</small>
+            </div>
+        </div>
+
+        <div class="nav-title">PRINCIPAL</div>
+
+        <a class="nav-link" href="/dashboard.html">
+            <span class="dot"></span>
+            Dashboard
+        </a>
+
+        <a class="nav-link" href="/ventas.html">
+            <span class="dot"></span>
+            Ventas
+        </a>
+
+        <a class="nav-link" href="/reportes.html">
+            <span class="dot"></span>
+            Reportes
+        </a>
+
+        <a class="nav-link active" href="/pedidos-online.html">
+            <span class="dot"></span>
+            Pedidos online
+        </a>
+
+        <div class="nav-title">CATÁLOGO</div>
+
+        <a class="nav-link" href="/productos.html">
+            <span class="dot"></span>
+            Productos
+        </a>
+
+        <a class="nav-link" href="/categorias.html">
+            <span class="dot"></span>
+            Categorías
+        </a>
+
+        <a class="nav-link" href="/inventario.html">
+            <span class="dot"></span>
+            Inventario
+        </a>
+
+        <div class="nav-title">OPERACIONES</div>
+
+        <a class="nav-link" href="/clientes.html">
+            <span class="dot"></span>
+            Clientes
+        </a>
+
+        <a class="nav-link" href="/proveedores.html">
+            <span class="dot"></span>
+            Proveedores
+        </a>
+
+        <a class="nav-link" href="/pedidos.html">
+            <span class="dot"></span>
+            Pedidos a proveedores
+        </a>
+
+        <a class="nav-link" href="/metodos-pago.html">
+            <span class="dot"></span>
+            Métodos de pago
+        </a>
+
+        <div class="nav-title">SEGURIDAD</div>
+
+        <a class="nav-link" href="/usuarios.html">
+            <span class="dot"></span>
+            Usuarios
+        </a>
+
+        <a class="nav-link" href="#" id="logoutBtn">
+            <span class="dot"></span>
+            Cerrar sesión
+        </a>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <button id="mobileMenu" class="btn btn-light mobile-menu">
+                    ☰
+                </button>
+
+                <h1>Pedidos online</h1>
+
+                <p>
+                    Administra los pedidos realizados por los clientes desde internet.
+                </p>
+            </div>
+
+            <div class="user-box">
+
+                <div class="avatar" id="avatar">
+                    U
+                </div>
+
+                <div>
+                    <strong id="currentUser">Usuario</strong>
+                    <small id="currentRole"></small>
+                </div>
+
+            </div>
+
+        </div>
+
+        <section class="card">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>Pedidos realizados por internet</h2>
+                    <p>
+                        Filtra los pedidos y actualiza su estado.
+                    </p>
+                </div>
+
+                <div class="field">
+
+                    <label for="onlineStatusFilter">
+                        Estado del pedido
+                    </label>
+
+                    <select id="onlineStatusFilter">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="CONFIRMADO">Confirmado</option>
+                        <option value="PREPARANDO">Preparando</option>
+                        <option value="ENVIADO">Enviado</option>
+                        <option value="ENTREGADO">Entregado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div id="onlineOrdersMessage" class="alert hidden"></div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>N.º pedido</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Método de pago</th>
+                            <th>Estado de pago</th>
+                            <th>Estado del pedido</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="onlineReportBody">
+
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Cargando pedidos online...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/js/app.js"></script>
+
+</body>
+</html>

@@ -22,7 +22,10 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final UsuarioDetailsService usuarioDetailsService;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, UsuarioDetailsService usuarioDetailsService) {
+    public SecurityConfig(
+            JwtAuthFilter jwtAuthFilter,
+            UsuarioDetailsService usuarioDetailsService) {
+
         this.jwtAuthFilter = jwtAuthFilter;
         this.usuarioDetailsService = usuarioDetailsService;
     }
@@ -33,32 +36,117 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration)
             throws Exception {
+
         return configuration.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .userDetailsService(usuarioDetailsService)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/*.html", "/css/**", "/js/**", "/api/auth/**", "/error").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/catalogo/**").permitAll()
-                        .requestMatchers("/api/tienda/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/ventas/online").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categorias/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/api/reportes/**", "/api/proveedores/**", "/api/pedidos-proveedor/**")
-                        .hasRole("ADMINISTRADOR")
-                        .requestMatchers("/api/metodos-pago/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .requestMatchers("/api/productos/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .requestMatchers("/api/inventario/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .requestMatchers("/api/clientes/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .requestMatchers("/api/ventas/**").hasAnyRole("ADMINISTRADOR", "CAJERO")
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http)
+            throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(
+                            SessionCreationPolicy.STATELESS
+                    )
+            )
+
+            .userDetailsService(usuarioDetailsService)
+
+            .authorizeHttpRequests(auth -> auth
+
+                .requestMatchers(
+                        "/",
+                        "/*.html",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/api/auth/**",
+                        "/error",
+                        "/favicon.ico"
+                ).permitAll()
+
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/catalogo/**"
+                ).permitAll()
+
+                .requestMatchers(
+                        "/api/tienda/**"
+                ).permitAll()
+
+                .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/ventas/online"
+                ).permitAll()
+
+                .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/categorias/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .requestMatchers(
+                        "/api/usuarios/**"
+                ).hasRole("ADMINISTRADOR")
+
+                .requestMatchers(
+                        "/api/reportes/**",
+                        "/api/proveedores/**",
+                        "/api/pedidos-proveedor/**"
+                ).hasRole("ADMINISTRADOR")
+
+                .requestMatchers(
+                        "/api/metodos-pago/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .requestMatchers(
+                        "/api/productos/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .requestMatchers(
+                        "/api/inventario/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .requestMatchers(
+                        "/api/clientes/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .requestMatchers(
+                        "/api/ventas/**"
+                ).hasAnyRole(
+                        "ADMINISTRADOR",
+                        "CAJERO"
+                )
+
+                .anyRequest().authenticated()
+            )
+
+            .addFilterBefore(
+                    jwtAuthFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
+
         return http.build();
     }
 }

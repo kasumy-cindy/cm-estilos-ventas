@@ -49,24 +49,55 @@ public class Venta {
     @Column(name = "tipo_venta", nullable = false, columnDefinition = "tipo_venta")
     private TipoVenta tipoVenta;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(name = "subtotal", nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
-    @Column(precision = 10, scale = 2)
+    @Column(name = "impuesto", precision = 10, scale = 2)
     private BigDecimal impuesto;
 
     @Column(name = "monto_total", precision = 10, scale = 2)
     private BigDecimal montoTotal;
 
-    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column(name = "estado_pedido", length = 30)
+    private String estadoPedido;
+
+    @Column(name = "estado_pago", length = 30)
+    private String estadoPago;
+
+    @Column(name = "modalidad_entrega", length = 20)
+    private String modalidadEntrega;
+
+    @Column(name = "direccion_entrega", length = 255)
+    private String direccionEntrega;
+
+    @Column(name = "telefono_entrega", length = 30)
+    private String telefonoEntrega;
+
+    @OneToMany(
+            mappedBy = "venta",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
     private List<DetalleVenta> detalles = new ArrayList<>();
 
     public Venta() {
+        this.estadoPedido = "ENTREGADO";
+        this.estadoPago = "PAGADO";
+        this.modalidadEntrega = "TIENDA";
     }
 
-    public Venta(Integer idVenta, Cliente cliente, Usuario usuario, LocalDateTime fechaHora,
-                 TipoVenta tipoVenta, BigDecimal subtotal, BigDecimal impuesto,
-                 BigDecimal montoTotal) {
+    public Venta(
+            Integer idVenta,
+            Cliente cliente,
+            Usuario usuario,
+            LocalDateTime fechaHora,
+            TipoVenta tipoVenta,
+            BigDecimal subtotal,
+            BigDecimal impuesto,
+            BigDecimal montoTotal) {
+
+        this();
+
         this.idVenta = idVenta;
         this.cliente = cliente;
         this.usuario = usuario;
@@ -147,6 +178,46 @@ public class Venta {
 
     public void setMontoTotal(BigDecimal montoTotal) {
         this.montoTotal = montoTotal;
+    }
+
+    public String getEstadoPedido() {
+        return estadoPedido;
+    }
+
+    public void setEstadoPedido(String estadoPedido) {
+        this.estadoPedido = estadoPedido;
+    }
+
+    public String getEstadoPago() {
+        return estadoPago;
+    }
+
+    public void setEstadoPago(String estadoPago) {
+        this.estadoPago = estadoPago;
+    }
+
+    public String getModalidadEntrega() {
+        return modalidadEntrega;
+    }
+
+    public void setModalidadEntrega(String modalidadEntrega) {
+        this.modalidadEntrega = modalidadEntrega;
+    }
+
+    public String getDireccionEntrega() {
+        return direccionEntrega;
+    }
+
+    public void setDireccionEntrega(String direccionEntrega) {
+        this.direccionEntrega = direccionEntrega;
+    }
+
+    public String getTelefonoEntrega() {
+        return telefonoEntrega;
+    }
+
+    public void setTelefonoEntrega(String telefonoEntrega) {
+        this.telefonoEntrega = telefonoEntrega;
     }
 
     public List<DetalleVenta> getDetalles() {

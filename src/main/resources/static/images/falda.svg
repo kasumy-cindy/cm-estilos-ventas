@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#fff8f2"/>
+<path d="M190 90h120l-18 80 105 190H103l105-190z" fill="#f29a52" stroke="#493225" stroke-width="8"/>
+<path d="M190 90h120v38H190z" fill="#d97835" stroke="#493225" stroke-width="8"/>
+<path d="M150 310h200M130 350h240" stroke="#fff" stroke-width="7" opacity=".75"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#493225">Falda</text>
+</svg>

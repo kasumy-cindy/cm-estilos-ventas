@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#fffaf3"/>
+<path d="M115 300l85-25 70-105 45 25-15 95 105 40q35 13 35 55H90q0-55 25-85z" fill="#d45f45" stroke="#522820" stroke-width="8"/>
+<path d="M200 275l85 15" stroke="#ffd8c8" stroke-width="8"/>
+<path d="M95 385h350" stroke="#522820" stroke-width="12"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#522820">Zapatos</text>
+</svg>

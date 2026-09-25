@@ -10,18 +10,25 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/tienda")
 public class TiendaController {
+
     private final TiendaService tiendaService;
     private final MetodoPagoService metodoPagoService;
 
-    public TiendaController(TiendaService tiendaService, MetodoPagoService metodoPagoService) {
+    public TiendaController(
+            TiendaService tiendaService,
+            MetodoPagoService metodoPagoService) {
+
         this.tiendaService = tiendaService;
         this.metodoPagoService = metodoPagoService;
     }
@@ -32,7 +39,31 @@ public class TiendaController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<VentaResponse> checkout(@Valid @RequestBody TiendaCheckoutRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tiendaService.crearPedido(request));
+    public ResponseEntity<VentaResponse> checkout(
+            @Valid @RequestBody TiendaCheckoutRequest request) {
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(tiendaService.crearPedido(request));
+    }
+
+    @GetMapping("/pedidos/{id}")
+    public ResponseEntity<VentaResponse> consultarPedido(
+            @PathVariable Integer id,
+            @RequestParam String correo) {
+
+        return ResponseEntity.ok(
+                tiendaService.consultarPedido(id, correo)
+        );
+    }
+
+    @PatchMapping("/pedidos/{id}/cancelar")
+    public ResponseEntity<VentaResponse> cancelarPedido(
+            @PathVariable Integer id,
+            @RequestParam String correo) {
+
+        return ResponseEntity.ok(
+                tiendaService.cancelarPedido(id, correo)
+        );
     }
 }

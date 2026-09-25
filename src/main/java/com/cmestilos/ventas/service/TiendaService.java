@@ -11,12 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TiendaService {
+
     private final ClienteRepository clienteRepository;
     private final ClienteService clienteService;
     private final VentaService ventaService;
 
-    public TiendaService(ClienteRepository clienteRepository, ClienteService clienteService,
-                         VentaService ventaService) {
+    public TiendaService(
+            ClienteRepository clienteRepository,
+            ClienteService clienteService,
+            VentaService ventaService) {
+
         this.clienteRepository = clienteRepository;
         this.clienteService = clienteService;
         this.ventaService = ventaService;
@@ -24,21 +28,53 @@ public class TiendaService {
 
     @Transactional
     public VentaResponse crearPedido(TiendaCheckoutRequest request) {
+
         String documento = request.getNumDocumento().trim();
-        Cliente cliente = clienteRepository.findByNumDocumento(documento).orElse(null);
+
+        Cliente cliente = clienteRepository
+                .findByNumDocumento(documento)
+                .orElse(null);
+
         Integer clienteId;
 
         if (cliente == null) {
+
             ClienteRequest clienteRequest = new ClienteRequest(
-                    request.getTipoDocumento(), documento, request.getNombres(),
-                    request.getCorreo(), request.getTelefono());
-            clienteId = clienteService.crear(clienteRequest).getIdCliente();
+                    request.getTipoDocumento(),
+                    documento,
+                    request.getNombres(),
+                    request.getCorreo(),
+                    request.getTelefono()
+            );
+
+            clienteId = clienteService
+                    .crear(clienteRequest)
+                    .getIdCliente();
+
         } else {
             clienteId = cliente.getIdCliente();
         }
 
         VentaRequest ventaRequest = new VentaRequest(
-                clienteId, "Online", request.getMetodoPagoId(), request.getItems());
+                clienteId,
+                "Online",
+                request.getMetodoPagoId(),
+                request.getModalidadEntrega(),
+                request.getDireccionEntrega(),
+                request.getTelefono(),
+                request.getItems()
+        );
+
         return ventaService.crear(ventaRequest, null);
+    }
+
+    @Transactional(readOnly = true)
+    public VentaResponse consultarPedido(Integer id, String correo) {
+        return ventaService.consultarPorCliente(id, correo);
+    }
+
+    @Transactional
+    public VentaResponse cancelarPedido(Integer id, String correo) {
+        return ventaService.cancelarPorCliente(id, correo);
     }
 }

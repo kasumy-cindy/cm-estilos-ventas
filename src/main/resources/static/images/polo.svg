@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<rect width="500" height="500" fill="#f5f7fb"/>
+<path d="M185 105l55-35h20l55 35 75 55-45 65-35-27v190H190V198l-35 27-45-65z" fill="#5b8def" stroke="#24324a" stroke-width="8"/>
+<path d="M240 70l10 48 10-48" fill="none" stroke="#24324a" stroke-width="8"/>
+<path d="M220 92h60" stroke="#fff" stroke-width="8"/>
+<text x="250" y="440" text-anchor="middle" font-family="Arial" font-size="28" fill="#24324a">Polo</text>
+</svg>

@@ -10,251 +10,314 @@
 
 <body data-page="reportes">
 
-    <div class="app-shell">
+<div class="app-shell">
 
-        <aside class="sidebar">
+    <aside class="sidebar">
 
-            <div class="brand">
-                <div class="brand-mark">C&M</div>
+        <div class="brand">
+            <div class="brand-mark">C&M</div>
+            <div>
+                <strong>C&M Estilos</strong>
+                <small>Panel de gestión</small>
+            </div>
+        </div>
+
+        <div class="nav-title">PRINCIPAL</div>
+
+        <a class="nav-link" href="/dashboard.html" data-page="dashboard">
+            <span class="dot"></span>
+            Dashboard
+        </a>
+
+        <a class="nav-link" href="/ventas.html" data-page="ventas">
+            <span class="dot"></span>
+            Ventas
+        </a>
+
+        <a class="nav-link" href="/reportes.html" data-page="reportes">
+            <span class="dot"></span>
+            Reportes
+        </a>
+
+        <a class="nav-link" href="/pedidos-online.html" data-page="pedidos-online">
+            <span class="dot"></span>
+            Pedidos online
+        </a>
+
+        <div class="nav-title">CATÁLOGO</div>
+
+        <a class="nav-link" href="/productos.html" data-page="productos">
+            <span class="dot"></span>
+            Productos
+        </a>
+
+        <a class="nav-link" href="/categorias.html" data-page="categorias">
+            <span class="dot"></span>
+            Categorías
+        </a>
+
+        <a class="nav-link" href="/inventario.html" data-page="inventario">
+            <span class="dot"></span>
+            Inventario
+        </a>
+
+        <div class="nav-title">OPERACIONES</div>
+
+        <a class="nav-link" href="/clientes.html" data-page="clientes">
+            <span class="dot"></span>
+            Clientes
+        </a>
+
+        <a class="nav-link" href="/proveedores.html" data-page="proveedores">
+            <span class="dot"></span>
+            Proveedores
+        </a>
+
+        <a class="nav-link" href="/pedidos.html" data-page="pedidos">
+            <span class="dot"></span>
+            Pedidos a proveedores
+        </a>
+
+        <a class="nav-link" href="/metodos-pago.html" data-page="metodos-pago">
+            <span class="dot"></span>
+            Métodos de pago
+        </a>
+
+        <div class="nav-title">SEGURIDAD</div>
+
+        <a class="nav-link" href="/usuarios.html" data-page="usuarios">
+            <span class="dot"></span>
+            Usuarios
+        </a>
+
+        <a class="nav-link" href="#" id="logoutBtn">
+            <span class="dot"></span>
+            Cerrar sesión
+        </a>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <button id="mobileMenu" class="btn btn-light mobile-menu">
+                    ☰
+                </button>
+
+                <h1>Reportes</h1>
+                <p>Analiza ventas, impuestos y estado del inventario.</p>
+            </div>
+
+            <div class="user-box">
+                <div class="avatar" id="avatar">U</div>
+
                 <div>
-                    <strong>C&M Estilos</strong>
-                    <small>Panel de gestión</small>
+                    <strong id="currentUser">Usuario</strong>
+                    <small id="currentRole"></small>
                 </div>
             </div>
 
-            <div class="nav-title">PRINCIPAL</div>
+        </div>
 
-            <a class="nav-link" href="/dashboard.html" data-page="dashboard">
-                <span class="dot"></span>
-                Dashboard
-            </a>
+        <section class="card report-filter">
 
-            <a class="nav-link" href="/ventas.html" data-page="ventas">
-                <span class="dot"></span>
-                Ventas
-            </a>
+            <form id="reportFilter" class="actions">
 
-            <a class="nav-link" href="/reportes.html" data-page="reportes">
-                <span class="dot"></span>
-                Reportes
-            </a>
+                <div class="field">
+                    <label for="fromDate">Desde</label>
+                    <input id="fromDate" type="date">
+                </div>
 
-            <div class="nav-title">CATÁLOGO</div>
+                <div class="field">
+                    <label for="toDate">Hasta</label>
+                    <input id="toDate" type="date">
+                </div>
 
-            <a class="nav-link" href="/productos.html" data-page="productos">
-                <span class="dot"></span>
-                Productos
-            </a>
+                <button class="btn btn-primary" type="submit">
+                    Filtrar
+                </button>
 
-            <a class="nav-link" href="/categorias.html" data-page="categorias">
-                <span class="dot"></span>
-                Categorías
-            </a>
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    id="clearReport">
+                    Limpiar
+                </button>
 
-            <a class="nav-link" href="/inventario.html" data-page="inventario">
-                <span class="dot"></span>
-                Inventario
-            </a>
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    id="downloadPdf">
+                    Descargar PDF
+                </button>
 
-            <div class="nav-title">OPERACIONES</div>
+            </form>
 
-            <a class="nav-link" href="/clientes.html" data-page="clientes">
-                <span class="dot"></span>
-                Clientes
-            </a>
+        </section>
 
-            <a class="nav-link" href="/proveedores.html" data-page="proveedores">
-                <span class="dot"></span>
-                Proveedores
-            </a>
+        <section class="grid grid-4">
 
-            <a class="nav-link" href="/pedidos.html" data-page="pedidos">
-                <span class="dot"></span>
-                Pedidos a proveedores
-            </a>
-
-            <a class="nav-link" href="/metodos-pago.html" data-page="metodos-pago">
-                <span class="dot"></span>
-                Métodos de pago
-            </a>
-
-            <div class="nav-title">SEGURIDAD</div>
-
-            <a class="nav-link" href="/usuarios.html" data-page="usuarios">
-                <span class="dot"></span>
-                Usuarios
-            </a>
-
-            <a class="nav-link" href="#" id="logoutBtn">
-                <span class="dot"></span>
-                Cerrar sesión
-            </a>
-
-        </aside>
-
-        <main class="main">
-
-            <div class="topbar">
-
+            <article class="card stat">
                 <div>
-                    <button id="mobileMenu" class="btn btn-light mobile-menu">
-                        ☰
-                    </button>
-
-                    <h1>Reportes</h1>
-                    <p>Analiza ventas, impuestos y estado del inventario.</p>
+                    <span>Ventas</span>
+                    <strong id="reportSales">0</strong>
                 </div>
+                <div class="stat-icon">#</div>
+            </article>
 
-                <div class="user-box">
-                    <div class="avatar" id="avatar">U</div>
-
-                    <div>
-                        <strong id="currentUser">Usuario</strong>
-                        <small id="currentRole"></small>
-                    </div>
+            <article class="card stat">
+                <div>
+                    <span>Físicas</span>
+                    <strong id="reportPhysical">0</strong>
                 </div>
+                <div class="stat-icon">▣</div>
+            </article>
 
-            </div>
+            <article class="card stat">
+                <div>
+                    <span>Online</span>
+                    <strong id="reportOnline">0</strong>
+                </div>
+                <div class="stat-icon">↗</div>
+            </article>
 
-            <section class="card report-filter">
+            <article class="card stat">
+                <div>
+                    <span>Stock crítico</span>
+                    <strong id="reportCritical">0</strong>
+                </div>
+                <div class="stat-icon">!</div>
+            </article>
 
-                <form id="reportFilter" class="actions">
+        </section>
 
-                    <div class="field">
-                        <label for="fromDate">Desde</label>
-                        <input id="fromDate" type="date">
-                    </div>
+        <section class="grid grid-3 report-totals">
 
-                    <div class="field">
-                        <label for="toDate">Hasta</label>
-                        <input id="toDate" type="date">
-                    </div>
+            <article class="card stat">
+                <div>
+                    <span>Subtotal</span>
+                    <strong id="reportSubtotal">S/ 0.00</strong>
+                </div>
+            </article>
 
-                    <button
-                        class="btn btn-primary"
-                        type="submit">
-                        Filtrar
-                    </button>
+            <article class="card stat">
+                <div>
+                    <span>IGV</span>
+                    <strong id="reportTax">S/ 0.00</strong>
+                </div>
+            </article>
 
-                    <button
-                        type="button"
-                        class="btn btn-light"
-                        id="clearReport">
-                        Limpiar
-                    </button>
+            <article class="card stat">
+                <div>
+                    <span>Total recaudado</span>
+                    <strong id="reportTotal">S/ 0.00</strong>
+                </div>
+            </article>
 
-                    <button
-                        type="button"
-                        class="btn btn-success"
-                        id="downloadPdf">
-                        Descargar PDF
-                    </button>
+        </section>
 
-                </form>
+        <section class="card report-table">
 
-            </section>
-
-            <section class="grid grid-4">
-
-                <article class="card stat">
-                    <div>
-                        <span>Ventas</span>
-                        <strong id="reportSales">0</strong>
-                    </div>
-                    <div class="stat-icon">#</div>
-                </article>
-
-                <article class="card stat">
-                    <div>
-                        <span>Físicas</span>
-                        <strong id="reportPhysical">0</strong>
-                    </div>
-                    <div class="stat-icon">▣</div>
-                </article>
-
-                <article class="card stat">
-                    <div>
-                        <span>Online</span>
-                        <strong id="reportOnline">0</strong>
-                    </div>
-                    <div class="stat-icon">↗</div>
-                </article>
-
-                <article class="card stat">
-                    <div>
-                        <span>Stock crítico</span>
-                        <strong id="reportCritical">0</strong>
-                    </div>
-                    <div class="stat-icon">!</div>
-                </article>
-
-            </section>
-
-            <section class="grid grid-3 report-totals">
-
-                <article class="card stat">
-                    <div>
-                        <span>Subtotal</span>
-                        <strong id="reportSubtotal">S/ 0.00</strong>
-                    </div>
-                </article>
-
-                <article class="card stat">
-                    <div>
-                        <span>IGV</span>
-                        <strong id="reportTax">S/ 0.00</strong>
-                    </div>
-                </article>
-
-                <article class="card stat">
-                    <div>
-                        <span>Total recaudado</span>
-                        <strong id="reportTotal">S/ 0.00</strong>
-                    </div>
-                </article>
-
-            </section>
-
-            <section class="card report-table">
-
-                <div class="section-head">
+            <div class="section-head">
+                <div>
                     <h2>Detalle de ventas</h2>
+                    <p>Ventas físicas y ventas online registradas.</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Venta</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Pago</th>
+                            <th>Subtotal</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="reportBody">
+                        <tr>
+                            <td colspan="7" class="empty">
+                                Cargando reportes...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+        <section class="card report-table" style="margin-top: 18px;">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>Pedidos online</h2>
+                    <p>
+                        Consulta y actualiza los pedidos realizados por internet.
+                    </p>
                 </div>
 
-                <div class="table-wrap">
+                <div class="field">
+                    <label for="onlineStatusFilter">
+                        Estado del pedido
+                    </label>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Venta</th>
-                                <th>Fecha</th>
-                                <th>Cliente</th>
-                                <th>Tipo</th>
-                                <th>Pago</th>
-                                <th>Subtotal</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="reportBody">
-                            <tr>
-                                <td colspan="7" class="empty">
-                                    Cargando reportes...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
+                    <select id="onlineStatusFilter">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="CONFIRMADO">Confirmado</option>
+                        <option value="PREPARANDO">Preparando</option>
+                        <option value="ENVIADO">Enviado</option>
+                        <option value="ENTREGADO">Entregado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
                 </div>
 
-            </section>
+            </div>
 
-        </main>
+            <div class="table-wrap">
 
-    </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N.º pedido</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Método de pago</th>
+                            <th>Estado de pago</th>
+                            <th>Estado del pedido</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
 
-    <script src="/js/app.js"></script>
+                    <tbody id="onlineReportBody">
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Cargando pedidos online...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/js/app.js"></script>
 
 </body>
-
 </html>

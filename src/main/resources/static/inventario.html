@@ -1,1 +1,297 @@
-<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inventario | C&M Estilos</title><link rel="stylesheet" href="/css/styles.css"></head><body data-page="inventario"><div class="app-shell"><aside class="sidebar"><div class="brand"><div class="brand-mark">C&M</div><div><strong>C&M Estilos</strong><small>Panel de gestión</small></div></div><div class="nav-title">Principal</div><a class="nav-link" href="/dashboard.html" data-page="dashboard"><span class="dot"></span>Dashboard</a><a class="nav-link" href="/ventas.html" data-page="ventas"><span class="dot"></span>Ventas</a><a class="nav-link" href="/reportes.html" data-page="reportes"><span class="dot"></span>Reportes</a><div class="nav-title">Catálogo</div><a class="nav-link" href="/productos.html" data-page="productos"><span class="dot"></span>Productos</a><a class="nav-link" href="/categorias.html" data-page="categorias"><span class="dot"></span>Categorías</a><a class="nav-link" href="/inventario.html" data-page="inventario"><span class="dot"></span>Inventario</a><div class="nav-title">Operaciones</div><a class="nav-link" href="/clientes.html" data-page="clientes"><span class="dot"></span>Clientes</a><a class="nav-link" href="/proveedores.html" data-page="proveedores"><span class="dot"></span>Proveedores</a><a class="nav-link" href="/pedidos.html" data-page="pedidos"><span class="dot"></span>Pedidos a proveedores</a><a class="nav-link" href="/metodos-pago.html" data-page="metodos-pago"><span class="dot"></span>Métodos de pago</a><div class="nav-title">Seguridad</div><a class="nav-link" href="/usuarios.html" data-page="usuarios"><span class="dot"></span>Usuarios</a><a class="nav-link" href="#" id="logoutBtn"><span class="dot"></span>Cerrar sesión</a></aside><main class="main"><div class="topbar"><div><button id="mobileMenu" class="btn btn-light mobile-menu">☰</button><h1>Inventario</h1><p>Controla stock por talla, color y nivel crítico.</p></div><div class="user-box"><div class="avatar" id="avatar">U</div><div><strong id="currentUser">Usuario</strong><small id="currentRole"></small></div></div></div><section class="card" style="margin-bottom:18px"><div class="section-head"><h2>Nueva variante</h2><label><input id="onlyCritical" type="checkbox"> Mostrar solo stock crítico</label></div><form id="variantForm"><div class="form-grid"><div class="field"><label>Producto</label><select id="variantProduct" name="productoId" required></select></div><div class="field"><label>Talla</label><input id="variantTalla" name="talla" maxlength="10" required></div><div class="field"><label>Color</label><input id="variantColor" name="color" maxlength="30" required></div><div class="field"><label>Stock actual</label><input id="variantStock" name="stockActual" type="number" min="0" required></div><div class="field"><label>Stock crítico</label><input id="variantCritical" name="stockCritico" type="number" min="0" value="5" required></div></div><div class="actions" style="margin-top:16px"><button class="btn btn-primary" id="variantSubmit">Guardar variante</button><button type="button" class="btn btn-light" id="variantCancel">Limpiar</button></div></form></section><section class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>SKU</th><th>Producto</th><th>Variante</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></section></main></div><script src="/js/app.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inventario | C&M Estilos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body data-page="inventario">
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-mark">C&M</div>
+
+            <div>
+                <strong>C&M Estilos</strong>
+                <small>Panel de gestión</small>
+            </div>
+        </div>
+
+        <div class="nav-title">PRINCIPAL</div>
+
+        <a class="nav-link" href="/dashboard.html">
+            <span class="dot"></span>
+            Dashboard
+        </a>
+
+        <a class="nav-link" href="/ventas.html">
+            <span class="dot"></span>
+            Ventas
+        </a>
+
+        <a class="nav-link" href="/reportes.html">
+            <span class="dot"></span>
+            Reportes
+        </a>
+
+        <a class="nav-link" href="/pedidos-online.html">
+            <span class="dot"></span>
+            Pedidos online
+        </a>
+
+        <div class="nav-title">CATÁLOGO</div>
+
+        <a class="nav-link" href="/productos.html">
+            <span class="dot"></span>
+            Productos
+        </a>
+
+        <a class="nav-link" href="/categorias.html">
+            <span class="dot"></span>
+            Categorías
+        </a>
+
+        <a class="nav-link active" href="/inventario.html">
+            <span class="dot"></span>
+            Inventario
+        </a>
+
+        <div class="nav-title">OPERACIONES</div>
+
+        <a class="nav-link" href="/clientes.html">
+            <span class="dot"></span>
+            Clientes
+        </a>
+
+        <a class="nav-link" href="/proveedores.html">
+            <span class="dot"></span>
+            Proveedores
+        </a>
+
+        <a class="nav-link" href="/pedidos.html">
+            <span class="dot"></span>
+            Pedidos a proveedores
+        </a>
+
+        <a class="nav-link" href="/metodos-pago.html">
+            <span class="dot"></span>
+            Métodos de pago
+        </a>
+
+        <div class="nav-title">SEGURIDAD</div>
+
+        <a class="nav-link" href="/usuarios.html">
+            <span class="dot"></span>
+            Usuarios
+        </a>
+
+        <a class="nav-link" href="#" id="logoutBtn">
+            <span class="dot"></span>
+            Cerrar sesión
+        </a>
+
+    </aside>
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <button id="mobileMenu" class="btn btn-light mobile-menu">
+                    ☰
+                </button>
+
+                <h1>Inventario</h1>
+
+                <p>
+                    Controla el stock por talla, color y nivel crítico.
+                </p>
+            </div>
+
+            <div class="user-box">
+
+                <div class="avatar" id="avatar">
+                    U
+                </div>
+
+                <div>
+                    <strong id="currentUser">Usuario</strong>
+                    <small id="currentRole"></small>
+                </div>
+
+            </div>
+
+        </div>
+
+        <section class="card" style="margin-bottom: 18px;">
+
+            <div class="section-head">
+
+                <h2>Nueva variante</h2>
+
+                <label>
+                    <input
+                        id="onlyCritical"
+                        type="checkbox">
+
+                    Mostrar solo stock crítico
+                </label>
+
+            </div>
+
+            <form id="variantForm">
+
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label for="variantProduct">
+                            Producto
+                        </label>
+
+                        <select
+                            id="variantProduct"
+                            name="productoId"
+                            required>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="variantTalla">
+                            Talla
+                        </label>
+
+                        <input
+                            id="variantTalla"
+                            name="talla"
+                            type="text"
+                            maxlength="10"
+                            placeholder="M"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label for="variantColor">
+                            Color
+                        </label>
+
+                        <input
+                            id="variantColor"
+                            name="color"
+                            type="text"
+                            maxlength="30"
+                            placeholder="Negro"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label for="variantStock">
+                            Stock actual
+                        </label>
+
+                        <input
+                            id="variantStock"
+                            name="stockActual"
+                            type="number"
+                            min="0"
+                            value="0"
+                            required>
+                    </div>
+
+                    <div class="field">
+                        <label for="variantCritical">
+                            Stock crítico
+                        </label>
+
+                        <input
+                            id="variantCritical"
+                            name="stockCritico"
+                            type="number"
+                            min="0"
+                            value="5"
+                            required>
+                    </div>
+
+                </div>
+
+                <div class="actions" style="margin-top: 16px;">
+
+                    <button
+                        class="btn btn-primary"
+                        id="variantSubmit"
+                        type="submit">
+                        Guardar variante
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        id="variantCancel">
+                        Limpiar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+        <section class="card">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>Inventario registrado</h2>
+                    <p>
+                        Consulta las tallas, colores y cantidades disponibles.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>SKU</th>
+                            <th>Producto</th>
+                            <th>Variante</th>
+                            <th>Stock</th>
+                            <th>Mínimo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="inventoryBody">
+
+                        <tr>
+                            <td colspan="8" class="empty">
+                                Cargando inventario...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/js/app.js"></script>
+
+</body>
+</html>
