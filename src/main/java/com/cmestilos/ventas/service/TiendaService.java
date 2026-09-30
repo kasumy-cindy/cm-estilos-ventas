@@ -5,6 +5,7 @@ import com.cmestilos.ventas.dto.TiendaCheckoutRequest;
 import com.cmestilos.ventas.dto.VentaRequest;
 import com.cmestilos.ventas.dto.VentaResponse;
 import com.cmestilos.ventas.entity.Cliente;
+import com.cmestilos.ventas.exception.BusinessException;
 import com.cmestilos.ventas.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,29 @@ public class TiendaService {
 
         String documento = request.getNumDocumento().trim();
 
+        String modalidad = request.getModalidadEntrega();
+
+        if (modalidad == null || modalidad.isBlank()) {
+            modalidad = "RECOJO_TIENDA";
+        }
+
+        modalidad = modalidad.trim().toUpperCase();
+
+        String direccion = request.getDireccionEntrega();
+
+        if ("DELIVERY".equals(modalidad)) {
+            if (direccion == null || direccion.isBlank()) {
+                throw new BusinessException(
+                        "La dirección es obligatoria para la entrega a domicilio"
+                );
+            }
+
+            direccion = direccion.trim();
+        } else {
+            modalidad = "RECOJO_TIENDA";
+            direccion = null;
+        }
+
         Cliente cliente = clienteRepository
                 .findByNumDocumento(documento)
                 .orElse(null);
@@ -55,13 +79,19 @@ public class TiendaService {
             clienteId = cliente.getIdCliente();
         }
 
+        String telefono = request.getTelefono();
+
+        if (telefono != null && !telefono.isBlank()) {
+            telefono = telefono.trim();
+        }
+
         VentaRequest ventaRequest = new VentaRequest(
                 clienteId,
                 "Online",
                 request.getMetodoPagoId(),
-                request.getModalidadEntrega(),
-                request.getDireccionEntrega(),
-                request.getTelefono(),
+                modalidad,
+                direccion,
+                telefono,
                 request.getItems()
         );
 
@@ -69,12 +99,18 @@ public class TiendaService {
     }
 
     @Transactional(readOnly = true)
-    public VentaResponse consultarPedido(Integer id, String correo) {
+    public VentaResponse consultarPedido(
+            Integer id,
+            String correo) {
+
         return ventaService.consultarPorCliente(id, correo);
     }
 
     @Transactional
-    public VentaResponse cancelarPedido(Integer id, String correo) {
+    public VentaResponse cancelarPedido(
+            Integer id,
+            String correo) {
+
         return ventaService.cancelarPorCliente(id, correo);
     }
 }

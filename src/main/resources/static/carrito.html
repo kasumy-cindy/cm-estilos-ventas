@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Carrito | C&M Estilos</title>
+
+    <link rel="stylesheet" href="/css/tienda.css">
+    <link rel="stylesheet" href="/css/resenas.css">
+
+    <style>
+        .checkout-step,
+        .confirmation-step {
+            display: none;
+        }
+
+        .checkout-step.active,
+        .confirmation-step.active {
+            display: block;
+        }
+
+        .confirmation-card {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 35px;
+            text-align: center;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .confirmation-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .confirmation-card h1 {
+            margin-bottom: 10px;
+        }
+
+        .confirmation-data {
+            margin: 25px 0;
+            text-align: left;
+            border-top: 1px solid var(--line);
+        }
+
+        .confirmation-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .confirmation-row span {
+            color: var(--muted);
+        }
+
+        .confirmation-row strong {
+            text-align: right;
+        }
+
+        .checkout-form-card {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 28px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .checkout-form-card h1 {
+            margin-top: 0;
+        }
+
+        .checkout-form-card label {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin: 14px 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .checkout-form-card input,
+        .checkout-form-card select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .checkout-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .checkout-buttons button {
+            flex: 1;
+        }
+
+        @media (max-width: 700px) {
+            .confirmation-row {
+                display: block;
+            }
+
+            .confirmation-row strong {
+                display: block;
+                margin-top: 5px;
+                text-align: left;
+            }
+
+            .checkout-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body class="cart-page">
+
+<header class="store-header cart-header">
+    <a class="brand" href="/tienda.html">
+        <span>C&amp;M</span> Estilos
+    </a>
+
+    <nav>
+        <a href="/tienda.html#catalogo">Catálogo</a>
+        <a href="#checkoutStep">Comprar</a>
+        <a href="/tienda.html#seguimiento">Seguimiento</a>
+        <a href="/login.html">Administración</a>
+    </nav>
+
+    <a class="continue-shopping" href="/tienda.html#catalogo">
+        ← Seguir comprando
+    </a>
+</header>
+
+<main class="cart-main">
+
+    <div class="cart-progress">
+        <div
+            id="progressCart"
+            class="progress-step active">
+            <span>1</span>
+            <strong>Carrito</strong>
+        </div>
+
+        <div class="progress-line"></div>
+
+        <div
+            id="progressCheckout"
+            class="progress-step">
+            <span>2</span>
+            <strong>Checkout</strong>
+        </div>
+
+        <div class="progress-line"></div>
+
+        <div
+            id="progressConfirmation"
+            class="progress-step">
+            <span>3</span>
+            <strong>Confirmación</strong>
+        </div>
+    </div>
+
+    <!-- PASO 1: CARRITO -->
+    <section id="cartStep" class="cart-layout">
+
+        <section class="cart-products-section">
+            <div class="cart-title">
+                <p class="eyebrow">TU COMPRA</p>
+                <h1>Carrito</h1>
+                <p>Revisa tus productos antes de continuar.</p>
+            </div>
+
+            <div id="cartItems" class="cart-products">
+                <p class="empty-cart">
+                    Cargando productos...
+                </p>
+            </div>
+
+            <div class="discount-box">
+                <input
+                    id="discountCode"
+                    type="text"
+                    placeholder="Código de descuento">
+
+                <button
+                    id="applyDiscount"
+                    type="button"
+                    class="primary">
+                    Aplicar
+                </button>
+            </div>
+
+            <p id="cartMessage" class="cart-message"></p>
+        </section>
+
+        <aside class="purchase-summary">
+            <h2>Resumen de compra</h2>
+
+            <div class="summary-row">
+                <span id="summaryProducts">
+                    Subtotal
+                </span>
+
+                <strong id="cartSubtotal">
+                    S/ 0.00
+                </strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Envío</span>
+
+                <strong id="shippingCost">
+                    S/ 0.00
+                </strong>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-total">
+                <span>Total</span>
+
+                <strong id="cartTotal">
+                    S/ 0.00
+                </strong>
+            </div>
+
+            <h3>Método de entrega</h3>
+
+            <label class="delivery-option selected">
+                <input
+                    type="radio"
+                    name="modalidadEntrega"
+                    value="DELIVERY"
+                    id="deliveryHome"
+                    checked>
+
+                <span class="delivery-icon">🚚</span>
+
+                <span class="delivery-text">
+                    <strong>Envío a domicilio</strong>
+                    <small>Entrega en 2 - 4 días hábiles</small>
+                </span>
+
+                <b>S/ 12.90</b>
+            </label>
+
+            <label class="delivery-option">
+                <input
+                    type="radio"
+                    name="modalidadEntrega"
+                    value="RECOJO_TIENDA"
+                    id="pickupStore">
+
+                <span class="delivery-icon">🏪</span>
+
+                <span class="delivery-text">
+                    <strong>Retiro en tienda</strong>
+                    <small>Disponible en 24 horas</small>
+                </span>
+
+                <b>Gratis</b>
+            </label>
+
+            <div
+                id="cartDeliveryAddress"
+                class="cart-address-field">
+
+                <label for="cartAddress">
+                    Dirección de entrega
+                </label>
+
+                <input
+                    id="cartAddress"
+                    type="text"
+                    maxlength="255"
+                    placeholder="Ingresa tu dirección">
+            </div>
+
+            <button
+                id="continueCheckout"
+                class="primary checkout-button"
+                type="button">
+                Continuar con el checkout →
+            </button>
+
+            <div class="secure-payment">
+                <span>🔒</span>
+
+                <div>
+                    <strong>Compra segura</strong>
+                    <small>Tus datos están protegidos</small>
+                </div>
+            </div>
+        </aside>
+    </section>
+
+    <!-- PASO 2: CHECKOUT -->
+    <section
+        id="checkoutStep"
+        class="checkout-step section">
+
+        <div class="checkout-form-card">
+            <p class="eyebrow">FINALIZA TU COMPRA</p>
+
+            <h1>Datos del cliente</h1>
+
+            <form id="checkoutForm">
+
+                <div class="form-row">
+                    <label>
+                        Tipo de documento
+
+                        <select
+                            name="tipoDocumento"
+                            required>
+                            <option value="DNI">DNI</option>
+                            <option value="CE">CE</option>
+                            <option value="RUC">RUC</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Número de documento
+
+                        <input
+                            name="numDocumento"
+                            required
+                            maxlength="15">
+                    </label>
+                </div>
+
+                <label>
+                    Nombres completos
+
+                    <input
+                        name="nombres"
+                        required
+                        maxlength="100">
+                </label>
+
+                <div class="form-row">
+                    <label>
+                        Correo electrónico
+
+                        <input
+                            type="email"
+                            name="correo"
+                            required
+                            maxlength="100">
+                    </label>
+
+                    <label>
+                        Teléfono
+
+                        <input
+                            type="tel"
+                            name="telefono"
+                            maxlength="15">
+                    </label>
+                </div>
+
+                <label>
+                    Método de pago
+
+                    <select
+                        id="paymentMethod"
+                        name="metodoPagoId"
+                        required>
+                        <option value="">
+                            Cargando métodos de pago...
+                        </option>
+                    </select>
+                </label>
+
+				<input
+				    type="hidden"
+				    id="checkoutDeliveryMode"
+				    name="modalidadEntrega"
+				    value="DELIVERY">
+
+                <label id="checkoutAddressField">
+                    Dirección de entrega
+
+                    <input
+                        id="checkoutAddress"
+                        type="text"
+                        name="direccionEntrega"
+                        maxlength="255"
+                        placeholder="Ingresa tu dirección">
+                </label>
+
+                <p
+                    id="checkoutMessage"
+                    class="message">
+                </p>
+
+                <div class="checkout-buttons">
+                    <button
+                        id="backToCart"
+                        class="btn btn-light"
+                        type="button">
+                        ← Volver al carrito
+                    </button>
+
+                    <button
+                        id="confirmOrder"
+                        class="primary"
+                        type="submit">
+                        Confirmar pedido
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- PASO 3: CONFIRMACIÓN -->
+    <section
+        id="confirmationStep"
+        class="confirmation-step section">
+
+        <div class="confirmation-card">
+            <div class="confirmation-icon">✅</div>
+
+            <p class="eyebrow">PEDIDO REGISTRADO</p>
+
+            <h1>¡Compra confirmada!</h1>
+
+            <p>
+                Tu pedido fue registrado correctamente.
+            </p>
+
+            <div class="confirmation-data">
+                <div class="confirmation-row">
+                    <span>Número de pedido</span>
+                    <strong id="confirmationOrderId">-</strong>
+                </div>
+
+                <div class="confirmation-row">
+                    <span>Método de pago</span>
+                    <strong id="confirmationPaymentMethod">-</strong>
+                </div>
+
+                <div class="confirmation-row">
+                    <span>Estado del pedido</span>
+                    <strong id="confirmationOrderStatus">-</strong>
+                </div>
+
+                <div class="confirmation-row">
+                    <span>Estado del pago</span>
+                    <strong id="confirmationPaymentStatus">-</strong>
+                </div>
+
+                <div class="confirmation-row">
+                    <span>Modalidad de entrega</span>
+                    <strong id="confirmationDelivery">-</strong>
+                </div>
+
+                <div class="confirmation-row">
+                    <span>Total</span>
+                    <strong id="confirmationTotal">S/ 0.00</strong>
+                </div>
+            </div>
+
+            <p class="message">
+                Guarda tu número de pedido para consultar su estado.
+            </p>
+
+            <div class="checkout-buttons">
+                <a
+                    class="primary"
+                    href="/tienda.html#seguimiento">
+                    Consultar pedido
+                </a>
+
+                <a
+                    class="btn btn-light"
+                    href="/tienda.html">
+                    Volver a la tienda
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <span>C&amp;M Estilos</span>
+    <span>© 2026 · Tienda virtual</span>
+</footer>
+
+<script src="/js/carrito.js"></script>
+
+</body>
+</html>

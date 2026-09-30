@@ -12,7 +12,6 @@ import com.cmestilos.ventas.entity.Venta;
 import com.cmestilos.ventas.entity.VarianteProducto;
 import com.cmestilos.ventas.exception.BusinessException;
 import com.cmestilos.ventas.exception.ResourceNotFoundException;
-import com.cmestilos.ventas.repository.ClienteRepository;
 import com.cmestilos.ventas.repository.DetalleVentaRepository;
 import com.cmestilos.ventas.repository.UsuarioRepository;
 import com.cmestilos.ventas.repository.VarianteProductoRepository;
@@ -88,7 +87,6 @@ public class VentaService {
                 tipoVenta == TipoVenta.Online;
 
         if (!esOnline) {
-
             if (usernameAutenticado == null
                     || usernameAutenticado.isBlank()) {
 
@@ -106,13 +104,9 @@ public class VentaService {
                     );
         }
 
-        Set<Integer> variantesRepetidas =
-                new HashSet<>();
-
+        Set<Integer> variantesRepetidas = new HashSet<>();
+        List<VarianteProducto> variantes = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
-
-        List<VarianteProducto> variantes =
-                new ArrayList<>();
 
         for (VentaItemRequest item : request.getItems()) {
 
@@ -143,14 +137,14 @@ public class VentaService {
             }
 
             VarianteProducto variante =
-                    varianteRepository
-                            .findById(item.getVarianteId())
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Variante no encontrada: "
-                                                    + item.getVarianteId()
-                                    )
-                            );
+                    varianteRepository.findById(
+                            item.getVarianteId()
+                    ).orElseThrow(() ->
+                            new ResourceNotFoundException(
+                                    "Variante no encontrada: "
+                                            + item.getVarianteId()
+                            )
+                    );
 
             if (variante.getProducto() == null
                     || variante.getProducto()
@@ -203,20 +197,41 @@ public class VentaService {
         }
 
         if (esOnline) {
-            venta.setEstadoPedido("PENDIENTE");
-            venta.setEstadoPago("PENDIENTE");
-            venta.setModalidadEntrega(
+
+            String modalidad =
                     normalizarModalidad(
                             request.getModalidadEntrega()
-                    )
-            );
-            venta.setDireccionEntrega(
-                    request.getDireccionEntrega()
-            );
+                    );
+
+            String direccion =
+                    request.getDireccionEntrega();
+
+            if ("DELIVERY".equals(modalidad)) {
+
+                if (direccion == null
+                        || direccion.isBlank()) {
+
+                    throw new BusinessException(
+                            "La dirección es obligatoria para delivery"
+                    );
+                }
+
+                direccion = direccion.trim();
+
+            } else {
+                direccion = null;
+            }
+
+            venta.setEstadoPedido("PENDIENTE");
+            venta.setEstadoPago("PENDIENTE");
+            venta.setModalidadEntrega(modalidad);
+            venta.setDireccionEntrega(direccion);
             venta.setTelefonoEntrega(
-                    request.getTelefonoEntrega()
+                    limpiar(request.getTelefonoEntrega())
             );
+
         } else {
+
             venta.setEstadoPedido("ENTREGADO");
             venta.setEstadoPago("PAGADO");
             venta.setModalidadEntrega("TIENDA");
@@ -251,8 +266,6 @@ public class VentaService {
         }
 
         detalleRepository.flush();
-
-        entityManager.refresh(venta);
 
         List<DetalleVenta> detalles =
                 detalleRepository.findByVentaIdVenta(
@@ -292,13 +305,7 @@ public class VentaService {
             );
         }
 
-        Venta venta =
-                ventaRepository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Venta no encontrada: " + id
-                                )
-                        );
+        Venta venta = buscarVenta(id);
 
         if (venta.getTipoVenta() != TipoVenta.Online) {
             throw new BusinessException(
@@ -326,10 +333,10 @@ public class VentaService {
 
         venta = ventaRepository.saveAndFlush(venta);
 
-        List<DetalleVenta> detalles =
-                detalleRepository.findByVentaIdVenta(id);
-
-        return toResponse(venta, detalles);
+        return toResponse(
+                venta,
+                detalleRepository.findByVentaIdVenta(id)
+        );
     }
 
     @Transactional(readOnly = true)
@@ -337,15 +344,14 @@ public class VentaService {
             Integer id,
             String correo) {
 
-        Venta venta =
-                buscarVenta(id);
+        Venta venta = buscarVenta(id);
 
         validarCorreo(venta, correo);
 
-        List<DetalleVenta> detalles =
-                detalleRepository.findByVentaIdVenta(id);
-
-        return toResponse(venta, detalles);
+        return toResponse(
+                venta,
+                detalleRepository.findByVentaIdVenta(id)
+        );
     }
 
     @Transactional
@@ -353,8 +359,7 @@ public class VentaService {
             Integer id,
             String correo) {
 
-        Venta venta =
-                buscarVenta(id);
+        Venta venta = buscarVenta(id);
 
         validarCorreo(venta, correo);
 
@@ -378,10 +383,49 @@ public class VentaService {
 
         venta = ventaRepository.saveAndFlush(venta);
 
-        List<DetalleVenta> detalles =
-                detalleRepository.findByVentaIdVenta(id);
+        return toResponse(
+                venta,
+                detalleRepository.findByVentaIdVenta(id)
+        );
+    }
 
-        return toResponse(venta, detalles);
+    @Transactional(readOnly = true)
+    public List<VentaResponse> listar() {
+
+        return ventaRepository
+                .findAllByOrderByFechaHoraDesc()
+                .stream()
+                .map(venta ->
+                        toResponse(
+                                venta,
+                                detalleRepository
+                                        .findByVentaIdVenta(
+                                                venta.getIdVenta()
+                                        )
+                        )
+                )
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public VentaResponse obtener(Integer id) {
+
+        Venta venta = buscarVenta(id);
+
+        return toResponse(
+                venta,
+                detalleRepository.findByVentaIdVenta(id)
+        );
+    }
+
+    private Venta buscarVenta(Integer id) {
+
+        return ventaRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Venta no encontrada: " + id
+                        )
+                );
     }
 
     private void validarCorreo(
@@ -402,17 +446,6 @@ public class VentaService {
                     "El correo no coincide con el pedido"
             );
         }
-    }
-
-    private Venta buscarVenta(Integer id) {
-
-        return ventaRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Venta no encontrada: " + id
-                        )
-                );
     }
 
     private String normalizarModalidad(
@@ -438,96 +471,22 @@ public class VentaService {
         return valor;
     }
 
-    @Transactional(readOnly = true)
-    public List<VentaResponse> listar() {
+    private String limpiar(String valor) {
 
-        return ventaRepository
-                .findAllByOrderByFechaHoraDesc()
-                .stream()
-                .map(venta -> {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
 
-                    List<DetalleVenta> detalles =
-                            detalleRepository
-                                    .findByVentaIdVenta(
-                                            venta.getIdVenta()
-                                    );
-
-                    return toResponse(
-                            venta,
-                            detalles
-                    );
-                })
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public VentaResponse obtener(Integer id) {
-
-        Venta venta =
-                buscarVenta(id);
-
-        List<DetalleVenta> detalles =
-                detalleRepository.findByVentaIdVenta(id);
-
-        return toResponse(venta, detalles);
+        return valor.trim();
     }
 
     private VentaResponse toResponse(
             Venta venta,
             List<DetalleVenta> detalles) {
 
-        List<DetalleVentaResponse>
-                detalleResponses =
+        List<DetalleVentaResponse> detalleResponses =
                 detalles.stream()
-                        .map(detalle -> {
-
-                            VarianteProducto variante =
-                                    detalle.getVariante();
-
-                            BigDecimal precioUnitario =
-                                    detalle.getPrecioUnit()
-                                            == null
-                                            ? BigDecimal.ZERO
-                                            : detalle.getPrecioUnit();
-
-                            BigDecimal importe =
-                                    precioUnitario.multiply(
-                                            BigDecimal.valueOf(
-                                                    detalle.getCantidad()
-                                            )
-                                    ).setScale(
-                                            2,
-                                            RoundingMode.HALF_UP
-                                    );
-
-                            return new DetalleVentaResponse(
-                                    detalle.getIdDetalle(),
-                                    variante == null
-                                            ? null
-                                            : variante.getIdVariante(),
-                                    variante == null
-                                            || variante.getProducto()
-                                                    == null
-                                            ? null
-                                            : variante.getProducto()
-                                                    .getSku(),
-                                    variante == null
-                                            || variante.getProducto()
-                                                    == null
-                                            ? null
-                                            : variante.getProducto()
-                                                    .getNombre(),
-                                    variante == null
-                                            ? null
-                                            : variante.getTalla(),
-                                    variante == null
-                                            ? null
-                                            : variante.getColor(),
-                                    detalle.getCantidad(),
-                                    precioUnitario,
-                                    importe
-                            );
-                        })
+                        .map(this::convertirDetalle)
                         .toList();
 
         return new VentaResponse(
@@ -573,6 +532,58 @@ public class VentaService {
                 venta.getDireccionEntrega(),
                 venta.getTelefonoEntrega(),
                 detalleResponses
+        );
+    }
+
+    private DetalleVentaResponse convertirDetalle(
+            DetalleVenta detalle) {
+
+        VarianteProducto variante =
+                detalle.getVariante();
+
+        BigDecimal precioUnitario =
+                detalle.getPrecioUnit() == null
+                        ? BigDecimal.ZERO
+                        : detalle.getPrecioUnit();
+
+        BigDecimal importe =
+                precioUnitario.multiply(
+                        BigDecimal.valueOf(
+                                detalle.getCantidad()
+                        )
+                ).setScale(
+                        2,
+                        RoundingMode.HALF_UP
+                );
+
+        return new DetalleVentaResponse(
+                detalle.getIdDetalle(),
+
+                variante == null
+                        ? null
+                        : variante.getIdVariante(),
+
+                variante == null
+                        || variante.getProducto() == null
+                        ? null
+                        : variante.getProducto().getSku(),
+
+                variante == null
+                        || variante.getProducto() == null
+                        ? null
+                        : variante.getProducto().getNombre(),
+
+                variante == null
+                        ? null
+                        : variante.getTalla(),
+
+                variante == null
+                        ? null
+                        : variante.getColor(),
+
+                detalle.getCantidad(),
+                precioUnitario,
+                importe
         );
     }
 }

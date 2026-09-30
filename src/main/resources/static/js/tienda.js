@@ -1,31 +1,60 @@
+const IMAGEN_POR_DEFECTO = "/images/vestido-floral.png";
+
+const IMAGENES_ANTIGUAS = {
+    "/images/blusa.svg": "/images/blusa-elegante.png",
+    "/images/vestido.svg": "/images/vestido-floral.png",
+    "/images/pantalon.svg": "/images/jean-mom-fit.png",
+    "/images/accesorios.svg": "/images/bolso-clasico.png",
+    "/images/polo.svg": "/images/blusa-volantes.png",
+    "/images/falda.svg": "/images/vestido-midi.png",
+    "/images/casaca.svg": "/images/chaqueta-rosa.png",
+    "/images/short.svg": "/images/jean-mom-fit.png",
+    "/images/chompa.svg": "/images/chaqueta-rosa.png",
+    "/images/conjunto.svg": "/images/vestido-midi.png",
+    "/images/zapatos.svg": "/images/tenis-casual.png",
+    "/images/cartera.svg": "/images/bolso-clasico.png"
+};
+
+function readStorage(key, defaultValue) {
+    try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : defaultValue;
+    } catch (error) {
+        return defaultValue;
+    }
+}
+
 const state = {
-    products: [],
-    cart: JSON.parse(
-        localStorage.getItem("cm-estilos-cart") || "[]"
-    )
+    products: readStorage("cm-estilos-products", []),
+    cart: readStorage("cm-estilos-cart", [])
 };
 
 const money = value =>
     `S/ ${Number(value || 0).toFixed(2)}`;
 
-const saveCart = () => {
+function saveCart() {
     localStorage.setItem(
         "cm-estilos-cart",
         JSON.stringify(state.cart)
     );
-};
+}
 
 function escapeHtml(value) {
-    return String(value ?? "").replace(
-        /[&<>'"]/g,
-        character => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "'": "&#39;",
-            '"': "&quot;"
-        })[character]
-    );
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+function getImage(product) {
+    const image = String(product?.imagenUrl || "").trim();
+
+    return IMAGENES_ANTIGUAS[image]
+        || image
+        || IMAGEN_POR_DEFECTO;
 }
 
 function stars(value) {
@@ -34,47 +63,118 @@ function stars(value) {
         Math.min(5, Math.round(Number(value || 0)))
     );
 
-    return "★".repeat(rating)
-        + "☆".repeat(5 - rating);
+    return "★".repeat(rating) + "☆".repeat(5 - rating);
+}
+
+function renderCartCount() {
+    const cartCount =
+        document.getElementById("cartCount");
+
+    if (!cartCount) {
+        return;
+    }
+
+    const count = state.cart.reduce(
+        (total, item) =>
+            total + Number(item.cantidad || 0),
+        0
+    );
+
+    cartCount.textContent = count;
+}
+
+function addToCart(varianteId) {
+    const product = state.products.find(item =>
+        Number(item.idVariante) === Number(varianteId)
+    );
+
+    if (!product) {
+        alert("No se encontró el producto seleccionado.");
+        return;
+    }
+
+    if (Number(product.stockActual || 0) <= 0) {
+        alert("Este producto no tiene stock disponible.");
+        return;
+    }
+
+    const item = state.cart.find(current =>
+        Number(current.varianteId) === Number(varianteId)
+    );
+
+    if (item) {
+        item.cantidad = Math.min(
+            Number(item.cantidad || 0) + 1,
+            Number(product.stockActual)
+        );
+    } else {
+        state.cart.push({
+            varianteId: Number(varianteId),
+            cantidad: 1
+        });
+    }
+
+    saveCart();
+    renderCartCount();
+
+    const button = document.querySelector(
+        `.add-button[data-id="${varianteId}"]`
+    );
+
+    if (button) {
+        const text = button.textContent;
+
+        button.textContent = "Agregado ✓";
+        button.disabled = true;
+
+        setTimeout(() => {
+            button.textContent = text;
+            button.disabled = false;
+        }, 900);
+    }
 }
 
 function renderProducts() {
-    const term = document
-        .getElementById("searchInput")
-        .value
-        .toLowerCase()
-        .trim();
-
-    const products = state.products.filter(product =>
-        `${product.productoNombre}
-         ${product.sku}
-         ${product.color}
-         ${product.talla}`
-            .toLowerCase()
-            .includes(term)
-    );
+    const searchInput =
+        document.getElementById("searchInput");
 
     const grid =
         document.getElementById("productGrid");
 
-    document.getElementById("catalogMessage")
-        .textContent = products.length
-            ? ""
-            : "No encontramos productos disponibles.";
+    const message =
+        document.getElementById("catalogMessage");
+
+    if (!searchInput || !grid || !message) {
+        return;
+    }
+
+    const term =
+        searchInput.value.toLowerCase().trim();
+
+    const products = state.products.filter(product => {
+        const text = [
+            product.productoNombre,
+            product.sku,
+            product.color,
+            product.talla
+        ]
+            .join(" ")
+            .toLowerCase();
+
+        return text.includes(term);
+    });
+
+    message.textContent = products.length
+        ? ""
+        : "No encontramos productos disponibles.";
 
     grid.innerHTML = products.map(product => `
         <article class="product-card">
-
             <div class="product-art">
                 <img
-                    src="${escapeHtml(
-                        product.imagenUrl ||
-                        "/images/accesorios.svg"
-                    )}"
-                    alt="${escapeHtml(
-                        product.productoNombre
-                    )}"
-                    onerror="this.src='/images/accesorios.svg'">
+                    src="${escapeHtml(getImage(product))}"
+                    alt="${escapeHtml(product.productoNombre)}"
+                    onerror="this.onerror=null;this.src='/images/vestido-floral.png';">
             </div>
 
             <div class="product-info">
@@ -89,7 +189,7 @@ function renderProducts() {
                 </p>
 
                 <p>
-                    ${product.stockActual}
+                    ${Number(product.stockActual || 0)}
                     unidad(es) disponibles
                 </p>
 
@@ -114,9 +214,7 @@ function renderProducts() {
                     class="review-button"
                     type="button"
                     data-review-id="${product.productoId}"
-                    data-review-name="${escapeHtml(
-                        product.productoNombre
-                    )}">
+                    data-review-name="${escapeHtml(product.productoNombre)}">
                     Ver / dejar reseña
                 </button>
             </div>
@@ -126,7 +224,9 @@ function renderProducts() {
     grid.querySelectorAll(".add-button")
         .forEach(button => {
             button.addEventListener("click", () => {
-                addToCart(Number(button.dataset.id));
+                addToCart(
+                    Number(button.dataset.id)
+                );
             });
         });
 
@@ -142,166 +242,11 @@ function renderProducts() {
 
     [
         ...new Set(
-            products.map(product => product.productoId)
+            products.map(product =>
+                product.productoId
+            )
         )
     ].forEach(loadRating);
-}
-
-function renderCart() {
-    const items = state.cart
-        .map(item => ({
-            ...item,
-            product: state.products.find(
-                product =>
-                    product.idVariante === item.varianteId
-            )
-        }))
-        .filter(item => item.product);
-
-    state.cart = items.map(item => ({
-        varianteId: item.varianteId,
-        cantidad: item.cantidad
-    }));
-
-    const count = state.cart.reduce(
-        (total, item) => total + item.cantidad,
-        0
-    );
-
-    const total = items.reduce(
-        (sum, item) =>
-            sum
-            + Number(item.product.precioVenta)
-            * item.cantidad,
-        0
-    );
-
-    document.getElementById("cartCount")
-        .textContent = count;
-
-    document.getElementById("cartTotal")
-        .textContent = money(total);
-
-    document.getElementById("cartItems")
-        .innerHTML = items.length
-            ? items.map(item => `
-                <div class="cart-line">
-
-                    <div>
-                        <strong>
-                            ${escapeHtml(
-                                item.product.productoNombre
-                            )}
-                        </strong>
-
-                        <small>
-                            ${escapeHtml(item.product.talla)}
-                            ·
-                            ${escapeHtml(item.product.color)}
-                        </small>
-                    </div>
-
-                    <div class="cart-controls">
-                        <button
-                            type="button"
-                            data-minus="${item.varianteId}">
-                            −
-                        </button>
-
-                        <span>${item.cantidad}</span>
-
-                        <button
-                            type="button"
-                            data-plus="${item.varianteId}">
-                            +
-                        </button>
-                    </div>
-                </div>
-            `).join("")
-            : `
-                <p class="muted">
-                    Aún no agregaste productos.
-                </p>
-            `;
-
-    document.querySelectorAll("[data-minus]")
-        .forEach(button => {
-            button.addEventListener("click", () => {
-                changeQuantity(
-                    Number(button.dataset.minus),
-                    -1
-                );
-            });
-        });
-
-    document.querySelectorAll("[data-plus]")
-        .forEach(button => {
-            button.addEventListener("click", () => {
-                changeQuantity(
-                    Number(button.dataset.plus),
-                    1
-                );
-            });
-        });
-
-    saveCart();
-}
-
-function addToCart(varianteId) {
-    const product = state.products.find(
-        item => item.idVariante === varianteId
-    );
-
-    if (!product || product.stockActual <= 0) {
-        return;
-    }
-
-    const item = state.cart.find(
-        current => current.varianteId === varianteId
-    );
-
-    if (item) {
-        item.cantidad = Math.min(
-            item.cantidad + 1,
-            product.stockActual
-        );
-    } else {
-        state.cart.push({
-            varianteId,
-            cantidad: 1
-        });
-    }
-
-    renderCart();
-}
-
-function changeQuantity(varianteId, change) {
-    const item = state.cart.find(
-        current => current.varianteId === varianteId
-    );
-
-    const product = state.products.find(
-        current => current.idVariante === varianteId
-    );
-
-    if (!item || !product) {
-        return;
-    }
-
-    item.cantidad += change;
-
-    if (item.cantidad <= 0) {
-        state.cart = state.cart.filter(
-            current => current.varianteId !== varianteId
-        );
-    } else {
-        item.cantidad = Math.min(
-            item.cantidad,
-            product.stockActual
-        );
-    }
-
-    renderCart();
 }
 
 async function loadRating(productoId) {
@@ -320,29 +265,38 @@ async function loadRating(productoId) {
             `[data-rating-product="${productoId}"]`
         ).forEach(element => {
             element.textContent = summary.cantidad
-                ? `${stars(summary.promedio)}
-                   ${summary.promedio}
-                   (${summary.cantidad})`
+                ? `${stars(summary.promedio)} ${summary.promedio} (${summary.cantidad})`
                 : "★★★★★ Sin reseñas";
         });
-
     } catch (error) {
-        console.error("Error cargando reseñas", error);
+        console.error(
+            "Error cargando reseñas:",
+            error
+        );
     }
 }
 
-async function openReviews(productoId, productoNombre) {
+async function openReviews(
+    productoId,
+    productoNombre
+) {
     const modal =
         document.getElementById("reviewModal");
 
     const list =
         document.getElementById("reviewList");
 
-    document.getElementById("reviewProductId")
-        .value = productoId;
+    if (!modal || !list) {
+        return;
+    }
 
-    document.getElementById("reviewTitle")
-        .textContent = `Reseñas: ${productoNombre}`;
+    document.getElementById(
+        "reviewProductId"
+    ).value = productoId;
+
+    document.getElementById(
+        "reviewTitle"
+    ).textContent = `Reseñas: ${productoNombre}`;
 
     modal.hidden = false;
 
@@ -359,20 +313,24 @@ async function openReviews(productoId, productoNombre) {
 
         const summary = await response.json();
 
-        document.getElementById("reviewSummary")
-            .textContent = summary.cantidad
-                ? `${stars(summary.promedio)}
-                   ${summary.promedio}/5 ·
-                   ${summary.cantidad} opinión(es)`
-                : "Este producto todavía no tiene reseñas.";
+        if (!response.ok) {
+            throw new Error(
+                summary.message ||
+                "No se pudieron cargar las reseñas."
+            );
+        }
 
-        list.innerHTML = summary.resenas.length
+        document.getElementById(
+            "reviewSummary"
+        ).textContent = summary.cantidad
+            ? `${stars(summary.promedio)} ${summary.promedio}/5 · ${summary.cantidad} opinión(es)`
+            : "Este producto todavía no tiene reseñas.";
+
+        list.innerHTML = summary.resenas?.length
             ? summary.resenas.map(review => `
                 <div class="review-item">
                     <strong>
-                        ${escapeHtml(
-                            review.nombreCliente
-                        )}
+                        ${escapeHtml(review.nombreCliente)}
                     </strong>
 
                     <div class="rating">
@@ -380,9 +338,7 @@ async function openReviews(productoId, productoNombre) {
                     </div>
 
                     <p>
-                        ${escapeHtml(
-                            review.comentario
-                        )}
+                        ${escapeHtml(review.comentario)}
                     </p>
                 </div>
             `).join("")
@@ -391,471 +347,257 @@ async function openReviews(productoId, productoNombre) {
                     Todavía no hay opiniones.
                 </p>
             `;
-
     } catch (error) {
         list.innerHTML = `
             <p class="muted">
-                No se pudieron cargar las reseñas.
+                ${escapeHtml(error.message)}
             </p>
         `;
     }
-}
-
-function updateDeliveryFields() {
-    const deliveryMode =
-        document.getElementById("deliveryMode");
-
-    const addressField =
-        document.getElementById(
-            "deliveryAddressField"
-        );
-
-    const addressInput =
-        document.getElementById(
-            "deliveryAddress"
-        );
-
-    const isDelivery =
-        deliveryMode.value === "DELIVERY";
-
-    addressField.hidden = !isDelivery;
-    addressInput.required = isDelivery;
-
-    if (!isDelivery) {
-        addressInput.value = "";
-    }
-}
-
-function configureDelivery() {
-    const deliveryMode =
-        document.getElementById("deliveryMode");
-
-    deliveryMode.addEventListener(
-        "change",
-        updateDeliveryFields
-    );
-
-    updateDeliveryFields();
 }
 
 async function loadStore() {
-    try {
-        const [
-            catalogResponse,
-            paymentResponse
-        ] = await Promise.all([
-            fetch(
-                "/api/catalogo?soloDisponibles=true"
-            ),
-            fetch("/api/tienda/metodos-pago")
-        ]);
+    const message =
+        document.getElementById("catalogMessage");
 
-        if (!catalogResponse.ok) {
+    try {
+        const response = await fetch(
+            "/api/catalogo?soloDisponibles=true"
+        );
+
+        if (!response.ok) {
             throw new Error(
-                "No se pudo cargar el catálogo"
+                "No se pudo cargar el catálogo."
             );
         }
 
-        state.products =
-            await catalogResponse.json();
+        const products = await response.json();
+
+        if (!Array.isArray(products)) {
+            throw new Error(
+                "El catálogo no tiene un formato válido."
+            );
+        }
+
+        state.products = products;
+
+        localStorage.setItem(
+            "cm-estilos-products",
+            JSON.stringify(state.products)
+        );
 
         renderProducts();
-        renderCart();
-
-        if (paymentResponse.ok) {
-            const methods =
-                await paymentResponse.json();
-
-            document.getElementById(
-                "paymentMethod"
-            ).insertAdjacentHTML(
-                "beforeend",
-                methods.map(method => `
-                    <option value="${method.idMetodoPago}">
-                        ${escapeHtml(method.nombre)}
-                    </option>
-                `).join("")
-            );
+        renderCartCount();
+    } catch (error) {
+        if (message) {
+            message.textContent = error.message;
         }
 
-    } catch (error) {
-        document.getElementById(
-            "catalogMessage"
-        ).textContent = error.message;
+        renderProducts();
+        renderCartCount();
     }
 }
 
-async function submitCheckout(event) {
-    event.preventDefault();
+function configureReviews() {
+    const closeReview =
+        document.getElementById("closeReview");
 
-    const message =
-        document.getElementById(
-            "checkoutMessage"
-        );
+    const reviewModal =
+        document.getElementById("reviewModal");
 
-    if (!state.cart.length) {
-        message.textContent =
-            "Agrega al menos un producto.";
+    const reviewForm =
+        document.getElementById("reviewForm");
+
+    if (closeReview && reviewModal) {
+        closeReview.addEventListener("click", () => {
+            reviewModal.hidden = true;
+        });
+    }
+
+    if (reviewModal) {
+        reviewModal.addEventListener("click", event => {
+            if (event.target === reviewModal) {
+                reviewModal.hidden = true;
+            }
+        });
+    }
+
+    if (!reviewForm) {
         return;
     }
 
-    const formData =
-        new FormData(event.target);
+    reviewForm.addEventListener(
+        "submit",
+        async event => {
+            event.preventDefault();
 
-    const payload =
-        Object.fromEntries(formData.entries());
+            const productId =
+                document.getElementById(
+                    "reviewProductId"
+                ).value;
 
-    payload.metodoPagoId =
-        payload.metodoPagoId
-            ? Number(payload.metodoPagoId)
-            : null;
+            const message =
+                document.getElementById(
+                    "reviewMessage"
+                );
 
-    payload.items = state.cart;
+            const body = {
+                nombreCliente:
+                    document.getElementById(
+                        "reviewName"
+                    ).value.trim(),
 
-    try {
-        message.textContent =
-            "Registrando pedido...";
+                correo:
+                    document.getElementById(
+                        "reviewEmail"
+                    ).value.trim() || null,
 
-        const response = await fetch(
-            "/api/tienda/checkout",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(payload)
+                puntuacion:
+                    Number(
+                        document.getElementById(
+                            "reviewRating"
+                        ).value
+                    ),
+
+                comentario:
+                    document.getElementById(
+                        "reviewComment"
+                    ).value.trim()
+            };
+
+            try {
+                const response = await fetch(
+                    `/api/tienda/productos/${productId}/resenas`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify(body)
+                    }
+                );
+
+                const result =
+                    await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        result.message ||
+                        "No se pudo publicar la reseña."
+                    );
+                }
+
+                message.textContent =
+                    "¡Gracias! Tu opinión fue publicada.";
+
+                event.target.reset();
+                loadRating(Number(productId));
+            } catch (error) {
+                message.textContent =
+                    error.message;
             }
-        );
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                result.message ||
-                "No se pudo registrar el pedido"
-            );
         }
-
-        state.cart = [];
-        saveCart();
-        renderCart();
-
-        event.target.reset();
-
-        document.getElementById(
-            "deliveryMode"
-        ).dispatchEvent(
-            new Event("change")
-        );
-
-        message.innerHTML = `
-            Pedido <strong>#${result.idVenta}</strong>
-            registrado correctamente.<br>
-            Total: <strong>
-                ${money(result.montoTotal)}
-            </strong>
-        `;
-
-        document.getElementById(
-            "trackingOrderId"
-        ).value = result.idVenta;
-
-        document.getElementById(
-            "trackingEmail"
-        ).value = payload.correo;
-
-    } catch (error) {
-        message.textContent =
-            error.message;
-    }
-}
-
-async function consultarPedido(event) {
-    event.preventDefault();
-
-    const id =
-        document.getElementById(
-            "trackingOrderId"
-        ).value;
-
-    const correo =
-        document.getElementById(
-            "trackingEmail"
-        ).value;
-
-    const result =
-        document.getElementById(
-            "trackingResult"
-        );
-
-    try {
-        result.textContent =
-            "Consultando pedido...";
-
-        const response = await fetch(
-            `/api/tienda/pedidos/${id}` +
-            `?correo=${encodeURIComponent(correo)}`
-        );
-
-        const pedido =
-            await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                pedido.message ||
-                "No se pudo consultar el pedido"
-            );
-        }
-
-        const puedeCancelar = [
-            "PENDIENTE",
-            "CONFIRMADO"
-        ].includes(pedido.estadoPedido);
-
-        result.innerHTML = `
-            <h3>Pedido #${pedido.idVenta}</h3>
-
-            <p>
-                <strong>Estado:</strong>
-                ${escapeHtml(
-                    pedido.estadoPedido || "-"
-                )}
-            </p>
-
-            <p>
-                <strong>Pago:</strong>
-                ${escapeHtml(
-                    pedido.estadoPago || "-"
-                )}
-            </p>
-
-            <p>
-                <strong>Entrega:</strong>
-                ${escapeHtml(
-                    pedido.modalidadEntrega || "-"
-                )}
-            </p>
-
-            <p>
-                <strong>Total:</strong>
-                ${money(pedido.montoTotal)}
-            </p>
-
-            ${
-                puedeCancelar
-                    ? `
-                        <button
-                            id="cancelCustomerOrder"
-                            class="primary"
-                            type="button">
-                            Cancelar pedido
-                        </button>
-                    `
-                    : ""
-            }
-        `;
-
-        if (puedeCancelar) {
-            document.getElementById(
-                "cancelCustomerOrder"
-            ).addEventListener(
-                "click",
-                () => cancelarPedido(id, correo)
-            );
-        }
-
-    } catch (error) {
-        result.textContent =
-            error.message;
-    }
-}
-
-async function cancelarPedido(id, correo) {
-    const confirmar = window.confirm(
-        "¿Deseas cancelar este pedido?"
     );
+}
 
-    if (!confirmar) {
+function configureTracking() {
+    const form =
+        document.getElementById("trackingForm");
+
+    if (!form) {
         return;
     }
 
-    const result =
-        document.getElementById(
-            "trackingResult"
-        );
+    form.addEventListener(
+        "submit",
+        async event => {
+            event.preventDefault();
 
-    try {
-        const response = await fetch(
-            `/api/tienda/pedidos/${id}/cancelar` +
-            `?correo=${encodeURIComponent(correo)}`,
-            {
-                method: "PATCH"
+            const id =
+                document.getElementById(
+                    "trackingOrderId"
+                ).value;
+
+            const correo =
+                document.getElementById(
+                    "trackingEmail"
+                ).value.trim();
+
+            const result =
+                document.getElementById(
+                    "trackingResult"
+                );
+
+            result.textContent =
+                "Consultando pedido...";
+
+            try {
+                const response = await fetch(
+                    `/api/tienda/pedidos/${encodeURIComponent(id)}?correo=${encodeURIComponent(correo)}`
+                );
+
+                const pedido =
+                    await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        pedido.message ||
+                        "No se pudo consultar el pedido."
+                    );
+                }
+
+                result.innerHTML = `
+                    <strong>
+                        Pedido #${pedido.idVenta}
+                    </strong>
+                    <br>
+                    Estado:
+                    ${escapeHtml(pedido.estadoPedido || "-")}
+                    <br>
+                    Pago:
+                    ${escapeHtml(pedido.estadoPago || "-")}
+                    <br>
+                    Entrega:
+                    ${escapeHtml(pedido.modalidadEntrega || "-")}
+                `;
+            } catch (error) {
+                result.textContent =
+                    error.message;
             }
-        );
-
-        const pedido =
-            await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                pedido.message ||
-                "No se pudo cancelar el pedido"
-            );
         }
-
-        result.innerHTML = `
-            <p>
-                El pedido #${pedido.idVenta}
-                fue cancelado correctamente.
-            </p>
-        `;
-
-    } catch (error) {
-        result.textContent =
-            error.message;
-    }
+    );
 }
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
-        document
-            .getElementById("searchInput")
-            .addEventListener(
+        const searchInput =
+            document.getElementById("searchInput");
+
+        if (searchInput) {
+            searchInput.addEventListener(
                 "input",
                 renderProducts
             );
+        }
 
-        document
-            .getElementById("cartButton")
-            .addEventListener(
+        const cartButton =
+            document.getElementById("cartButton");
+
+        if (cartButton) {
+            cartButton.addEventListener(
                 "click",
                 () => {
-                    document
-                        .getElementById("checkout")
-                        .scrollIntoView({
-                            behavior: "smooth"
-                        });
+                    window.location.href =
+                        "/carrito.html";
                 }
             );
+        }
 
-        document
-            .getElementById("closeReview")
-            .addEventListener(
-                "click",
-                () => {
-                    document
-                        .getElementById("reviewModal")
-                        .hidden = true;
-                }
-            );
-
-        document
-            .getElementById("reviewModal")
-            .addEventListener(
-                "click",
-                event => {
-                    if (
-                        event.target.id ===
-                        "reviewModal"
-                    ) {
-                        event.currentTarget.hidden =
-                            true;
-                    }
-                }
-            );
-
-        document
-            .getElementById("reviewForm")
-            .addEventListener(
-                "submit",
-                async event => {
-                    event.preventDefault();
-
-                    const productId =
-                        document.getElementById(
-                            "reviewProductId"
-                        ).value;
-
-                    const body = {
-                        nombreCliente:
-                            document.getElementById(
-                                "reviewName"
-                            ).value,
-
-                        correo:
-                            document.getElementById(
-                                "reviewEmail"
-                            ).value || null,
-
-                        puntuacion: Number(
-                            document.getElementById(
-                                "reviewRating"
-                            ).value
-                        ),
-
-                        comentario:
-                            document.getElementById(
-                                "reviewComment"
-                            ).value
-                    };
-
-                    const response = await fetch(
-                        `/api/tienda/productos/${productId}/resenas`,
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            body: JSON.stringify(body)
-                        }
-                    );
-
-                    const result =
-                        await response.json();
-
-                    document.getElementById(
-                        "reviewMessage"
-                    ).textContent = response.ok
-                        ? "¡Gracias! Tu opinión fue publicada."
-                        : (
-                            result.message ||
-                            "No se pudo publicar la reseña"
-                        );
-
-                    if (response.ok) {
-                        event.target.reset();
-
-                        await openReviews(
-                            Number(productId),
-                            document.getElementById(
-                                "reviewTitle"
-                            ).textContent
-                        );
-
-                        loadRating(
-                            Number(productId)
-                        );
-                    }
-                }
-            );
-
-        document
-            .getElementById("checkoutForm")
-            .addEventListener(
-                "submit",
-                submitCheckout
-            );
-
-        document
-            .getElementById("trackingForm")
-            .addEventListener(
-                "submit",
-                consultarPedido
-            );
-
-        configureDelivery();
+        renderCartCount();
+        configureReviews();
+        configureTracking();
         loadStore();
     }
 );

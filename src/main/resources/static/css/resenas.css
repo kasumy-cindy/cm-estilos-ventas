@@ -1,1 +1,172 @@
-.product-art{height:190px;overflow:hidden}.product-art img{width:100%;height:100%;object-fit:cover}.review-button{width:100%;margin-top:8px;border:1px solid #dbe3ee;background:#fff;color:#152137;padding:9px;border-radius:7px;cursor:pointer}.review-button:hover{border-color:#ef5a35;color:#ef5a35}.rating{color:#e69a19;font-size:14px;margin:8px 0}.review-modal{position:fixed;inset:0;background:#15213799;display:grid;place-items:center;padding:20px;z-index:10}.review-modal[hidden]{display:none}.review-dialog{position:relative;background:#fff;border-radius:16px;width:min(680px,100%);max-height:90vh;overflow:auto;padding:28px;box-shadow:0 20px 60px #15213755}.close-review{position:absolute;right:18px;top:12px;border:0;background:none;font-size:30px;color:#64748b;cursor:pointer}.review-summary{background:#fff8e7;padding:12px;border-radius:8px;color:#8a5b00}.review-list{margin:15px 0;max-height:230px;overflow:auto}.review-item{border-bottom:1px solid #dbe3ee;padding:12px 0}.review-item strong{display:block}.review-item .rating{margin:3px 0}.review-item p{margin:5px 0;color:#64748b;line-height:1.4}.review-form{border-top:1px solid #dbe3ee;padding-top:15px}.review-form label{display:flex;flex-direction:column;gap:6px;color:#64748b;font-size:13px;margin:10px 0}.review-form input,.review-form select,.review-form textarea{border:1px solid #dbe3ee;border-radius:7px;padding:10px;font:inherit;color:#152137}
+.product-art {
+  height: 190px;
+  overflow: hidden;
+  background: #fceff0;
+}
+
+.product-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.review-button {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #f0d9d9;
+  background: #fff9f7;
+  color: #3b2730;
+  padding: 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.review-button:hover {
+  border-color: #f47c6b;
+  color: #df5d50;
+  background: #fff0ee;
+}
+
+.rating {
+  color: #e69a19;
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.review-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(91, 59, 70, .65);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 20;
+}
+
+.review-modal[hidden] {
+  display: none;
+}
+
+.review-dialog {
+  position: relative;
+  background: #fffdfc;
+  border: 1px solid #f0d9d9;
+  border-radius: 16px;
+  width: min(680px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(91, 59, 70, .25);
+}
+
+.close-review {
+  position: absolute;
+  right: 18px;
+  top: 12px;
+  border: 0;
+  background: none;
+  font-size: 30px;
+  color: #8b7077;
+  cursor: pointer;
+}
+
+.close-review:hover {
+  color: #df5d50;
+}
+
+.review-summary {
+  background: #fff4dc;
+  padding: 12px;
+  border-radius: 8px;
+  color: #8a5b00;
+  border: 1px solid #f5dfac;
+}
+
+.review-list {
+  margin: 15px 0;
+  max-height: 230px;
+  overflow: auto;
+}
+
+.review-item {
+  border-bottom: 1px solid #f0d9d9;
+  padding: 12px 0;
+}
+
+.review-item strong {
+  display: block;
+  color: #3b2730;
+}
+
+.review-item .rating {
+  margin: 3px 0;
+}
+
+.review-item p {
+  margin: 5px 0;
+  color: #8b7077;
+  line-height: 1.4;
+}
+
+.review-form {
+  border-top: 1px solid #f0d9d9;
+  padding-top: 15px;
+}
+
+.review-form h3 {
+  color: #3b2730;
+}
+
+.review-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #8b7077;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+.review-form input,
+.review-form select,
+.review-form textarea {
+  border: 1px solid #ead2d2;
+  border-radius: 7px;
+  padding: 10px;
+  font: inherit;
+  color: #3b2730;
+  background: #fff;
+  outline: none;
+}
+
+.review-form input:focus,
+.review-form select:focus,
+.review-form textarea:focus {
+  border-color: #f47c6b;
+  box-shadow: 0 0 0 3px #ffe2de;
+}
+
+.review-form button {
+  border: 0;
+  border-radius: 8px;
+  background: #f47c6b;
+  color: white;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.review-form button:hover {
+  background: #df5d50;
+}
+
+@media (max-width: 600px) {
+  .review-dialog {
+    padding: 22px;
+  }
+
+  .product-art {
+    height: 170px;
+  }
+}
